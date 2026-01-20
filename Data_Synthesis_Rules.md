@@ -43,8 +43,8 @@ Seed Data Generation
       ii. 'Thin File' should have less than twice the outstanding liabilities and must fall in the lower income band
       iii. 'Thick File' should be skewed towards higher income bands. 
 
-Discipline 
-Transactional Data for each customer of past 6 months was generated using the below constraints: 
+3.Discipline 
+    Transactional Data of past 6 months for each customer was generated using the below constraints: 
 
 There is a 60% chance for a non-recurring transaction to be a debit transaction, chosen randomly from debit_categories
 (e.g., 'Cash Withdrawal', 'Outgoing Debit', 'Debit Card', 'Utility Bill Payments etc.).
