@@ -292,7 +292,128 @@ synthetic_data.head()
 ---------------------------------------------
 #CAPACITY
 ---------------------------------------------
+import numpy as np
 
+# 1. Initialize variables
+MIN_YEARLY_INCOME = 600000
+MAX_YEARLY_INCOME = 6000000
+NO_LIABILITY_PERCENTAGE = 0.40
+LOW_LIABILITY_PERCENTAGE = 0.30
+HIGH_LIABILITY_PERCENTAGE = 0.30
+
+# 2. Define helper function for assigning income bands
+def assign_income_band(income, min_income, max_income):
+    mid_point = min_income + (max_income - min_income) / 2
+    if income <= mid_point:
+        return 'Lower'
+    else:
+        return 'Higher'
+
+# 3. Define helper function for generating outstanding liabilities
+def generate_outstanding_liabilities(yearly_income):
+    rand_val = np.random.rand()
+    if rand_val < NO_LIABILITY_PERCENTAGE:
+        return 0  # 40% chance of 0 liability
+    elif rand_val < (NO_LIABILITY_PERCENTAGE + LOW_LIABILITY_PERCENTAGE):
+        # 30% chance of liability between yearly_income and 2 * yearly_income
+        return np.random.uniform(yearly_income, 2 * yearly_income)
+    else:
+        # 30% chance of liability between 2 * yearly_income and 5 * yearly_income
+        return np.random.uniform(2 * yearly_income, 5 * yearly_income)
+
+# 4. Define helper function for assigning credit history type (logic to be detailed later)
+def assign_credit_history_type(outstanding_liabilities, yearly_income_band):
+    # This function will be implemented with specific logic later.
+    # For now, it returns a placeholder.
+    if outstanding_liabilities == 0:
+        return 'No Credit History'
+    elif yearly_income_band == 'Lower' and outstanding_liabilities > 0:
+        return 'Thin File' # Example placeholder logic
+    else:
+        return 'Thick File' # Example placeholder logic
+
+##Generate Income
+import numpy as np
+
+# 1. Generate an initial 'yearly_income' for all customers
+MIN_YEARLY_INCOME = 600000
+MAX_YEARLY_INCOME = 6000000
+
+df_customers['yearly_income'] = np.random.uniform(
+    MIN_YEARLY_INCOME, MAX_YEARLY_INCOME, size=len(df_customers))
+
+# 2. Define a list of urban cities
+urban_cities = ['Karachi', 'Lahore', 'Faisalabad', 'Rawalpindi', 'Multan', 'Hyderabad'] # Common urban cities in Pakistan
+
+# 3. Identify customers who meet the criteria
+higher_income_criteria = (
+    (df_customers['age'] >= 30) &
+    (df_customers['age'] <= 45) &
+    (df_customers['employment_status'] == 'Salaried') &
+    (df_customers['city'].isin(urban_cities))
+)
+
+# 4. For these identified customers, update their 'yearly_income'
+higher_half_min_income = (MIN_YEARLY_INCOME + MAX_YEARLY_INCOME) / 2
+df_customers.loc[higher_income_criteria, 'yearly_income'] = np.random.uniform(
+    higher_half_min_income, MAX_YEARLY_INCOME, size=higher_income_criteria.sum())
+
+# 5. Display the head of the df_customers DataFrame
+print("df_customers head with adjusted 'yearly_income' for target group:")
+print(df_customers[['customer_id', 'age', 'employment_status', 'city', 'yearly_income']].head())
+
+df_customers['monthly_income'] = df_customers['yearly_income'] / 12
+
+##Generate Outstanding Liabilities
+df_customers['outstanding_liabilities'] = df_customers['yearly_income'].apply(generate_outstanding_liabilities)
+
+print("Head of df_customers with 'yearly_income' and 'outstanding_liabilities':")
+print(df_customers[['yearly_income', 'outstanding_liabilities']].head())
+
+##Generate Credit History 
+df_customers['yearly_income_band'] = df_customers['yearly_income'].apply(lambda x: assign_income_band(x, MIN_YEARLY_INCOME, MAX_YEARLY_INCOME))
+df_customers['credit_history_type'] = df_customers.apply(
+    lambda row: assign_credit_history_type(row['outstanding_liabilities'], row['yearly_income_band']),
+    axis=1
+)
+
+print("Head of df_customers with 'yearly_income', 'yearly_income_band', 'outstanding_liabilities', and 'credit_history_type':")
+print(df_customers[['yearly_income', 'yearly_income_band', 'outstanding_liabilities', 'credit_history_type']].head())
+
+print("Verifying generated columns in df_customers:")
+
+# 1. Display the first few rows of the df_customers DataFrame with specific columns
+print("\nHead of df_customers with generated columns:")
+print(df_customers[['yearly_income', 'monthly_income', 'outstanding_liabilities', 'yearly_income_band', 'credit_history_type']].head())
+
+# 2. Print descriptive statistics for 'yearly_income', 'monthly_income', and 'outstanding_liabilities'
+print("\nDescriptive statistics for yearly_income, monthly_income, and outstanding_liabilities:")
+print(df_customers[['yearly_income', 'monthly_income', 'outstanding_liabilities']].describe())
+
+# 3. Print the value counts for 'yearly_income_band' and 'credit_history_type'
+print("\nValue counts for 'yearly_income_band':")
+print(df_customers['yearly_income_band'].value_counts())
+
+print("\nValue counts for 'credit_history_type':")
+print(df_customers['credit_history_type'].value_counts())
+
+## Debt-To-Income Ratio Calculation
+# Calculate 'debt_to_income_ratio'
+# Handle potential division by zero or infinite values gracefully
+# If yearly_income is 0, the ratio should be 0 or NaN, not infinity.
+df_customers['debt_to_income_ratio'] = df_customers['outstanding_liabilities'] / df_customers['yearly_income']
+
+# Replace infinite values (which can result from yearly_income being 0) with NaN
+df_customers['debt_to_income_ratio'].replace([np.inf, -np.inf], np.nan, inplace=True)
+
+# Fill any NaN values (including those from division by zero) with 0
+df_customers['debt_to_income_ratio'].fillna(0, inplace=True)
+
+print("Head of df_customers with 'outstanding_liabilities', 'yearly_income', and 'debt_to_income_ratio':")
+display(df_customers[['outstanding_liabilities', 'yearly_income', 'debt_to_income_ratio']].head())
+
+print("\nDescriptive statistics for 'debt_to_income_ratio':")
+display(df_customers['debt_to_income_ratio'].describe())
 ---------------------------------------------
 ##DISCIPLINE 
 ---------------------------------------------
