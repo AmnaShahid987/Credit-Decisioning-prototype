@@ -109,13 +109,6 @@ import pandas as pd
 # Copy dataset to avoid mutating original
 fixed_seed_df = seed_customer_df.copy()
 
-# Identify invalid pensioners
-invalid_pensioners = (
-    (fixed_seed_df["employment_status"] == "Pensioner") &
-    (fixed_seed_df["age"] < 60)
-)
-
-print(f"Invalid pensioners found: {invalid_pensioners.sum()}")
 
 # Reassign employment status
 fixed_seed_df.loc[invalid_pensioners, "employment_status"] = np.random.choice(
@@ -390,22 +383,15 @@ unique_customers_in_merged_data = df_merged_customer_data_loaded['customer_id'].
 print(f"The number of unique customers in 'merged_customer_data.csv' is: {unique_customers_in_merged_data}")
 
 df_merged_customer_data.to_csv('merged_customer_data.csv', index=False)
-print("Merged customer data saved to 'merged_customer_data.csv'. You can now download this file.")
 
-salaried_above_60 = df_merged_customer_data[
-    (df_merged_customer_data['employment_status'] == 'Salaried') &
-    (df_merged_customer_data['age'] > 60)
-]
 
-num_salaried_above_60 = salaried_above_60.shape[0]
 
-print(f"The number of salaried customers above 60 years old is: {num_salaried_above_60}")
 
-df_customer_totals_loaded = pd.read_csv('customer_total_transactions.csv')
 
-unique_customers_in_total_summary = df_customer_totals_loaded['customer_id'].nunique()
 
-print(f"The number of unique customers in 'customer_total_transactions.csv' is: {unique_customers_in_total_summary}")
+
+
+
 
 
 
