@@ -4,7 +4,7 @@ import requests
 
 st.set_page_config(page_title="Credit Decisioning Prototype", layout="centered")
 
-st.title("Enter applicant details to receive a risk score and credit decision")
+st.title("Enter details to receive a credit decision")
 
 # -----------------------------
 # Date of Birth Input
@@ -58,9 +58,10 @@ marital_status = st.selectbox(
 # Household Dependents
 # -----------------------------
 household_dependents = st.selectbox(
-    "Select number of household dependents",
-    list(range(1, 7))
+    "Household Dependents",
+    ["Select number of household dependents"] + list(range(1, 7))
 )
+
 
 # -----------------------------
 # Monthly Income Slider
