@@ -149,4 +149,6 @@ def final_risk_label(score):
 df['final_risk_label'] = df['base_risk_score'].apply(final_risk_label)
 
 
+import joblib
 
+joblib.dump(feature_pipeline, "feature_pipeline.pkl")
