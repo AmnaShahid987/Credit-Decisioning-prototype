@@ -58,7 +58,7 @@ marital_status = st.selectbox(
 # Household Dependents
 # -----------------------------
 household_dependents = st.selectbox(
-    "Select number of household dependents","Household Dependents",
+    "Select number of household dependents",
     list(range(1, 7))
 )
 
