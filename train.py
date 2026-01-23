@@ -1,24 +1,23 @@
+import pandas as pd
+
 # Load the CSV file into a pandas DataFrame
-df = pd.read_csv('train_data_final (1) (3).csv')
+df = pd.read_csv('train_data_final (1) (3) (1).csv')
 
-## ML model####
+# Print the first 5 rows of the DataFrame
+print("First 5 rows of the DataFrame:")
+display(df.head())
 
-# Task
-The task is to build a supervised classification model to predict `final_risk_label` using the `train_data_final (1) (3) (1).csv` dataset. This involves loading the dataset, identifying relevant features and the target variable, preprocessing the data (including one-hot encoding categorical features and handling missing values), training a RandomForestClassifier model, and evaluating its performance using cross-validation (calculating accuracy, precision, recall, F1-score, and generating a confusion matrix).
-
-
-## Identify Target and Features
-
-Define the target variable as `final_risk_label` and identify appropriate features for the model. This will involve separating the DataFrame into features (X) and target (y).
-
+# Define the target variable as 'final_risk_label'
 y = df['final_risk_label']
+
+# Define the feature matrix X by dropping 'customer_id' and 'final_risk_label'
 X = df.drop(columns=['customer_id', 'final_risk_label'])
 
+print("\nFirst 5 rows of features (X):")
+display(X.head())
 
-## Preprocess Features (X)
-
-### Subtask:
-One-hot encode categorical features in `X` to create `X_preprocessed`.
+print("\nFirst 5 rows of target (y):")
+display(y.head())
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
@@ -46,18 +45,17 @@ all_feature_names = list(encoded_feature_names) + list(other_feature_names)
 
 X_preprocessed = pd.DataFrame(X_preprocessed, columns=all_feature_names, index=X.index)
 
-
-## Model Selection and Training & Model Evaluation using Cross-Validation
-
-### Subtask:
-Train a RandomForestClassifier model and evaluate its performance using cross-validation (e.g., K-fold cross-validation) on the full preprocessed dataset. This will involve calculating metrics such as accuracy, precision, recall, and F1-score across multiple folds, and generating a confusion matrix.
-
+print("Shape of X_preprocessed:", X_preprocessed.shape)
+print("First 5 rows of X_preprocessed:")
+display(X_preprocessed.head())
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import KFold, cross_val_predict
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
+import joblib
+
 
 # 2. Initialize a LabelEncoder and fit it to the target variable y
 label_encoder = LabelEncoder()
@@ -92,40 +90,10 @@ conf_matrix = confusion_matrix(y_encoded, y_pred_cv)
 print("\nConfusion Matrix:")
 display(pd.DataFrame(conf_matrix, index=label_encoder.classes_, columns=label_encoder.classes_))
 
-#Model Fitting
 model.fit(X_preprocessed, y_encoded)
 
---------------------------------------------
-## Probability of Default for Training Data
---------------------------------------------
-import pandas as pd
+# Create the directory if it doesn't exist
+output_dir = "models"
+os.makedirs(output_dir, exist_ok=True)
 
-# Get probability predictions for the training set using the fitted model
-# X_preprocessed and label_encoder are already defined from previous steps
-proba_predictions_train = model.predict_proba(X_preprocessed)
-
-# Create a DataFrame for better visualization and merging
-proba_df_train = pd.DataFrame(proba_predictions_train, columns=[f'prob_{cls}' for cls in label_encoder.classes_], index=X_preprocessed.index)
-
-# Merge these probabilities back into the original training DataFrame (df)
-# Ensure indexes align correctly
-df = df.merge(proba_df_train, left_index=True, right_index=True)
-
----------------------------------------------------
-## Save Probability of Default for Training Data
-----------------------------------------------------
-### Subtask:
-Calculate the probability of default for the training data, add it to the original `df` DataFrame, and save the updated DataFrame to `train_data_final (1) (3) (1).csv`.
-import pandas as pd
-
-# Define the target variable as 'final_risk_label'
-y = df['final_risk_label']
-
-# Define the feature matrix X by dropping 'customer_id' and 'final_risk_label'
-X = df.drop(columns=['customer_id', 'final_risk_label'])
-
-print("DataFrame and X, y defined.")
-
-import joblib
-
-joblib.dump(model, "credit_risk_model.pkl")
+joblib.dump(model, "credit_model.pkl"))
