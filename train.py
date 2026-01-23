@@ -129,3 +129,7 @@ print("DataFrame and X, y defined.")
 import joblib
 
 joblib.dump(model, "credit_risk_model.pkl")
+
+import joblib
+
+joblib.dump(model, "credit_risk_model.pkl")
