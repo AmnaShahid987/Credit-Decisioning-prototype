@@ -154,7 +154,7 @@ if st.button("Submit"):
         "household_dependents": household_dependents,
         "monthly_income": monthly_income
         "total_debit_6m": total_debit_6m
-        "total_credit_6m": total_credit_6m
+        "total_credit_6m" : total_credit_6m
     }
 
     st.subheader("Calculated Inputs Sent to Model")
