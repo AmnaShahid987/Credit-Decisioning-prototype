@@ -152,8 +152,8 @@ if st.button("Submit"):
         "employment_status": employment_status,
         "marital_status": marital_status,
         "household_dependents": household_dependents,
-        "monthly_income": monthly_income
-        "total_debit_6m": total_debit_6m
+        "monthly_income": monthly_income,
+        "total_debit_6m": total_debit_6m,
         "total_credit_6m" : total_credit_6m
     }
 
