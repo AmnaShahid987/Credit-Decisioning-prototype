@@ -4,12 +4,14 @@ import requests
 
 st.set_page_config(page_title="Credit Decisioning Prototype", layout="centered")
 
-st.title("Credit Application – Risk & Decisioning Prototype")
+st.title("Personal Loan Application")
 
 # -----------------------------
 # Date of Birth Input
 # -----------------------------
 st.subheader("Applicant Details")
+
+st.write("Birth Date")
 
 col1, col2, col3 = st.columns(3)
 
