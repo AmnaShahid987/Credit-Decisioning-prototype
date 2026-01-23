@@ -78,8 +78,6 @@ monthly_income = st.slider(
 # -----------------------------
 if st.button("Submit"):
     
-if st.button("Submit"):
-
     if employment_status == "Select employment status":
         st.error("Please select employment status")
 
