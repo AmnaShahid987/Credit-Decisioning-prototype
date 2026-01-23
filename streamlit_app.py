@@ -37,8 +37,10 @@ month_map = {
 
 birth_date = datetime.date(year, month_map[month], day)
 today = datetime.date.today()
+
 age = today.year - birth_date.year - (
-    (today.month, today.day) < (birth_date.month, birth_date))
+    (today.month, today.day) < (birth_date.month, birth_date.day)
+)
 
 # -----------------------------
 # Employment Status
