@@ -2,9 +2,9 @@ import streamlit as st
 import datetime
 import requests
 
-st.set_page_config(page_title="Credit Decisioning Prototype", layout="centered")
+st.set_page_config(page_title="Credit Decisioning Model", layout="centered")
 
-st.title("Enter details to receive a credit decision")
+st.title("Enter details to receive a risk classificiation and a credit decision")
 
 # -----------------------------
 # Date of Birth Input
@@ -74,11 +74,75 @@ monthly_income = st.slider(
     format="%d"
 )
 
+
+
+-----------------------------------------
+##Outstanding Liabilities
+-----------------------------------------
+
+outstanding_liabilities = st.slider(
+    "Outstanding Liabilities (PKR)",
+    min_value=0,
+    max_value=5_000_000,
+    value=0,
+    step=50_000
+)
+
+total_debit_6m = st.slider(
+    "Total Debit Amount (Last 6 Months) (PKR)",
+    min_value=0,
+    max_value=10_000_000,
+    value=0,
+    step=100_000
+)
+
+total_credit_6m = st.slider(
+    "Total Credit Amount (Last 6 Months) (PKR)",
+    min_value=0,
+    max_value=10_000_000,
+    value=0,
+    step=100_000
+)
+
+# ---- Validation Logic ----
+all_fields_filled = (
+    outstanding_liabilities > 0 and
+    total_debit_6m > 0 and
+    total_credit_6m > 0
+)
+
+# ---- Submit Button ----
+if st.button("Submit Application"):
+    if not all_fields_filled:
+        st.error("All fields are mandatory. Please provide values greater than zero.")
+    else:
+        st.success("Financial data captured successfully.")
+
+        # Display captured values (for prototype transparency)
+        st.write("### Captured Inputs")
+        st.write(f"- Outstanding Liabilities: PKR {outstanding_liabilities:,}")
+        st.write(f"- Total Debit (6 months): PKR {total_debit_6m:,}")
+        st.write(f"- Total Credit (6 months): PKR {total_credit_6m:,}")
+
+        # Placeholder for next step (API / model call)
+        st.info("Proceeding to credit decisioning logic...")
+
 # -----------------------------
 # Submit Application
 # -----------------------------
 if st.button("Submit"):
-    
+    if not all_fields_filled:
+        st.error("All fields are mandatory. Please provide values greater than zero.")
+    else:
+        st.success("Financial data captured successfully.")
+
+        # Display captured values (for prototype transparency)
+        st.write("### Captured Inputs")
+        st.write(f"- Outstanding Liabilities: PKR {outstanding_liabilities:,}")
+        st.write(f"- Total Debit (6 months): PKR {total_debit_6m:,}")
+        st.write(f"- Total Credit (6 months): PKR {total_credit_6m:,}")
+
+            
     if employment_status == "Select employment status":
         st.error("Please select employment status")
 
@@ -90,7 +154,9 @@ if st.button("Submit"):
 
     else:
         st.success("Application Submitted")
-   
+        
+      # Placeholder for next step (API / model call)
+        st.info("Proceeding to credit decisioning logic...")
 
     
     payload = {
@@ -99,6 +165,8 @@ if st.button("Submit"):
         "marital_status": marital_status,
         "household_dependents": household_dependents,
         "monthly_income": monthly_income
+        "total_debit_6m": total_debit_6m
+        "total_credit_6m": total_credit_6m
     }
 
     st.subheader("Calculated Inputs Sent to Model")
