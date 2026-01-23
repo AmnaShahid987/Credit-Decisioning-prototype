@@ -36,7 +36,9 @@ month_map = {
 }
 
 birth_date = datetime.date(year, month_map[month], day)
-age = current_year - birth_date.year
+today = datetime.date.today()
+age = today.year - birth_date.year - (
+    (today.month, today.day) < (birth_date.month, birth_date
 
 # -----------------------------
 # Employment Status
@@ -76,9 +78,9 @@ monthly_income = st.slider(
 
 
 
------------------------------------------
-##Outstanding Liabilities
------------------------------------------
+#-----------------------------------------
+#Outstanding Liabilities
+#-----------------------------------------
 
 outstanding_liabilities = st.slider(
     "Outstanding Liabilities (PKR)",
@@ -87,7 +89,9 @@ outstanding_liabilities = st.slider(
     value=0,
     step=50_000
 )
-
+#------------------------------------
+#Total Debit and Credit of past 6 months
+#-------------------------------------
 total_debit_6m = st.slider(
     "Total Debit Amount (Last 6 Months) (PKR)",
     min_value=0,
@@ -111,22 +115,6 @@ all_fields_filled = (
     total_credit_6m > 0
 )
 
-# ---- Submit Button ----
-if st.button("Submit Application"):
-    if not all_fields_filled:
-        st.error("All fields are mandatory. Please provide values greater than zero.")
-    else:
-        st.success("Financial data captured successfully.")
-
-        # Display captured values (for prototype transparency)
-        st.write("### Captured Inputs")
-        st.write(f"- Outstanding Liabilities: PKR {outstanding_liabilities:,}")
-        st.write(f"- Total Debit (6 months): PKR {total_debit_6m:,}")
-        st.write(f"- Total Credit (6 months): PKR {total_credit_6m:,}")
-
-        # Placeholder for next step (API / model call)
-        st.info("Proceeding to credit decisioning logic...")
-
 # -----------------------------
 # Submit Application
 # -----------------------------
@@ -146,7 +134,7 @@ if st.button("Submit"):
     if employment_status == "Select employment status":
         st.error("Please select employment status")
 
-    elif marital_status == "Select Marital Status":
+    elif marital_status == "Select marital Status":
         st.error("Please select marital status")
 
     elif household_dependents == "Select number of household dependents":
