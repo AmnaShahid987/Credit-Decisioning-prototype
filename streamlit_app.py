@@ -4,7 +4,7 @@ import requests
 
 st.set_page_config(page_title="Credit Decisioning Prototype", layout="centered")
 
-st.title("Personal Loan Application")
+st.title("Enter applicant details to receive a risk score and credit decision")
 
 # -----------------------------
 # Date of Birth Input
@@ -43,7 +43,7 @@ age = current_year - birth_date.year
 # -----------------------------
 employment_status = st.selectbox(
     "Employment Status",
-    ["Salaried", "Self-Employed", "Pensioner"]
+    ["Select employment status", "Salaried", "Self-Employed", "Pensioner"]
 )
 
 # -----------------------------
@@ -51,14 +51,14 @@ employment_status = st.selectbox(
 # -----------------------------
 marital_status = st.selectbox(
     "Marital Status",
-    ["Single", "Married"]
+    ["Select marital status","Single", "Married"]
 )
 
 # -----------------------------
 # Household Dependents
 # -----------------------------
 household_dependents = st.selectbox(
-    "Household Dependents",
+    "Select number of household dependents","Household Dependents",
     list(range(1, 7))
 )
 
@@ -67,8 +67,8 @@ household_dependents = st.selectbox(
 # -----------------------------
 monthly_income = st.slider(
     "Monthly Income",
-    min_value=100_000,
-    max_value=100_000_000,
+    min_value=0,
+    max_value=1000000,
     step=50_000,
     format="%d"
 )
@@ -76,8 +76,24 @@ monthly_income = st.slider(
 # -----------------------------
 # Submit Application
 # -----------------------------
-if st.button("Submit Application"):
+if st.button("Submit"):
+    
+if st.button("Submit"):
 
+    if employment_status == "Select employment status":
+        st.error("Please select employment status")
+
+    elif marital_status == "Select Marital Status":
+        st.error("Please select marital status")
+
+    elif household_dependents == "Select number of household dependents":
+        st.error("Please select number of household dependents")
+
+    else:
+        st.success("Application Submitted")
+   
+
+    
     payload = {
         "age": age,
         "employment_status": employment_status,
