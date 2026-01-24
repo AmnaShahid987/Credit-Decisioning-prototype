@@ -50,9 +50,35 @@ def health_check():
 @app.post("/predict")
 def predict(request: CustomerRequest):
     if model is None:
-        raise HTTPException(status_code=500, detail="Model artifacts not found. Check Render build logs.")
+        raise HTTPException(status_code=500, detail="Model artifacts not found.")
 
     try:
+        # --- THE GATEKEEPER: HARD ELIGIBILITY RULES ---
+        rejection_reason = None
+
+        # Rule 1: Age Check (22 - 65)
+        if request.age < 22 or request.age > 65:
+            rejection_reason = f"Age {request.age} is outside the eligible range (22-65 years)."
+
+        # Rule 2: Employment Check (No Retired)
+        # Note: Ensure the string 'Pensioner' matches your training data exactly
+        elif request.employment_status.strip().title() == "Retired":
+            rejection_reason = "Retired personnel are currently not eligible for this loan product."
+
+        # Rule 3: Debt to Income Ratio Check (> 3.0)
+        elif request.debt_to_income_ratio > 3.0:
+            rejection_reason = f"Debt-to-Income ratio ({request.debt_to_income_ratio}) exceeds the limit of 3.0."
+
+        # If any rule was triggered, stop here and return the rejection
+        if rejection_reason:
+            return {
+                "risk_label": "Ineligible",
+                "reason": rejection_reason,
+                "status": "Rejected",
+                "confidence": 1.0
+            }
+
+        
         # STEP 1: Input from Customer
         input_data = pd.DataFrame([request.dict()])
 
