@@ -15,11 +15,12 @@ except FileNotFoundError:
 # Standardizing Income: Use Monthly Income if available, otherwise 1/6th of Half-Yearly
 # We use .fillna(0) to avoid math errors with empty cells
 df['monthly_income_calc'] = df['monthly_income'].fillna(df['half_yearly_income'] / 6)
+df['yearly_income'] = df ['monthly_income']*12
 
 # Debt to Income Ratio (DTI)
 # Calculation: Total Liabilities / Monthly Income
 # Adding 1 to denominator to prevent DivisionByZero errors
-df['debt_to_income_ratio'] = df['outstanding_liabilities'] / (df['monthly_income_calc'] + 1)
+df['debt_to_income_ratio'] = df['outstanding_liabilities'] / df['yearly_income'] 
 
 # Spend to Income Ratio
 # Calculation: Total Debit over 6 months / Total Income over 6 months
