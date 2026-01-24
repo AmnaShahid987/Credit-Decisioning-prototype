@@ -1,5 +1,5 @@
 # Load the CSV file into a pandas DataFrame
-df = pd.read_csv('train_data_final (1) (3).csv')
+df = pd.read_csv('feature_processed_data.csv')
 
 ## ML model####
 
@@ -130,6 +130,4 @@ import joblib
 
 joblib.dump(model, "credit_risk_model.pkl")
 
-import joblib
 
-joblib.dump(model, "credit_risk_model.pkl")
