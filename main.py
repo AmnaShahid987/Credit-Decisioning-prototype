@@ -85,8 +85,8 @@ def predict(request: CustomerRequest):
                 "confidence": 1.0
             }
   
-         # STEP 1: Input from Customer
-         input_data = pd.DataFrame([request.dict()])  
+        # STEP 1: Input from Customer
+        input_data = pd.DataFrame([request.dict()])  
         
         # 2. LIFE STABILITY SCORING FUNCTIONS
         def age_score(age):
