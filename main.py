@@ -146,8 +146,8 @@ def predict(request: CustomerRequest):
         min_val, max_val = df['life_stability_score_adj'].min(), df['life_stability_score_adj'].max()
         df['life_stability_score_adj'] = (df['life_stability_score_adj'] - min_val) / (max_val - min_val)       
     
-       # STEP 1: Input from Customer
-       input_data = pd.DataFrame([request.dict()])
+        # STEP 1: Input from Customer
+        input_data = pd.DataFrame([request.dict()])
 
         # STEP 3: Preprocessing (One-Hot Encoding)
         # We use the preprocessor saved in Train.py to ensure the columns match
