@@ -54,6 +54,23 @@ def predict(request: CustomerRequest):
         raise HTTPException(status_code=500, detail="Model artifacts not found.")
 
     try:
+    
+    # 2. RATIO CALCULATIONS
+        # Standardizing Income: Use Monthly Income if available, otherwise 1/6th of Half-Yearly
+        # We use .fillna(0) to avoid math errors with empty cells
+        df['half_yearly_income'] = df['monthly_income']*6
+        df['yearly_income'] = df['monthly_income']*12
+            
+        # Debt to Income Ratio (DTI)
+        # Calculation: Total Liabilities / Monthly Income
+        # Adding 1 to denominator to prevent DivisionByZero errors
+        df['debt_to_income_ratio'] = df['outstanding_liabilities'] / df['yearly_income'] 
+            
+        # Spend to Income Ratio
+        # Calculation: Total Debit over 6 months / Total Income over 6 months
+        total_6m_income = df['monthly_income_calc'] * 6
+        df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits'])
+
         # --- THE GATEKEEPER: HARD ELIGIBILITY RULES ---
         rejection_reason = None
 
@@ -74,24 +91,6 @@ def predict(request: CustomerRequest):
                 "status": "Rejected",
                 "confidence": 1.0
             }
-
-    # 2. RATIO CALCULATIONS
-        # Standardizing Income: Use Monthly Income if available, otherwise 1/6th of Half-Yearly
-        # We use .fillna(0) to avoid math errors with empty cells
-        df['half_yearly_income'] = df['monthly_income']*6
-        df['yearly_income'] = df['monthly_income']*12
-            
-        # Debt to Income Ratio (DTI)
-        # Calculation: Total Liabilities / Monthly Income
-        # Adding 1 to denominator to prevent DivisionByZero errors
-        df['debt_to_income_ratio'] = df['outstanding_liabilities'] / df['yearly_income'] 
-            
-        # Spend to Income Ratio
-        # Calculation: Total Debit over 6 months / Total Income over 6 months
-        total_6m_income = df['monthly_income_calc'] * 6
-        df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits'])
-
-        ##Hard Eligibility Rule##
         # Rule 3: Debt to Income * Spend to Income Ratio Check
         elif request.debt_to_income_ratio > 3.0:
             rejection_reason = f"Debt-to-Income ratio ({request.debt_to_income_ratio}) exceeds the limit of 3.0."
