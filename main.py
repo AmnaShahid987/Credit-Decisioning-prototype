@@ -157,9 +157,12 @@ def predict(request: CustomerRequest):
         # Get the human-readable label (e.g., 'Low', 'High')
         prediction_label = label_encoder.inverse_transform(prediction_encoded)[0]
         
-        # Get probabilities
+        # Get probabilitiy of default
         probabilities = model.predict_proba(X_processed)[0]
         max_prob = float(max(probabilities))
+        
+        # PD = Prob(High) + Prob(Very High)
+        pd_value = float(probs[0] + probs[3])
 
         # STEP 4: Credit Decisioning (Business Logic)
         # Example: Hard decline if liabilities are too high, regardless of ML
@@ -169,6 +172,7 @@ def predict(request: CustomerRequest):
 
         return {
             "risk_label": final_decision,
+            "probability_of_default": round(pd_value, 4)
             "confidence": round(max_prob, 2),
             "status": "Success"
         }
