@@ -29,21 +29,6 @@ class CustomerRequest(BaseModel):
     outstanding_liabilities: float
     # Add any other columns used in your X features
 
-# 3. Load Artifacts once at startup
-MODEL_PATH = "credit_risk_model.pkl"
-PREPROCESSOR_PATH = "preprocessor.pkl"
-LABEL_ENCODER_PATH = "label_encoder.pkl"
-
-def load_artifacts():
-    if all(os.path.exists(f) for f in [MODEL_PATH, PREPROCESSOR_PATH, LABEL_ENCODER_PATH]):
-        model = joblib.load(MODEL_PATH)
-        preprocessor = joblib.load(PREPROCESSOR_PATH)
-        label_encoder = joblib.load(LABEL_ENCODER_PATH)
-        return model, preprocessor, label_encoder
-    return None, None, None
-
-model, preprocessor, label_encoder = load_artifacts()
-
 @app.get("/")
 def health_check():
     return {"status": "online", "model_loaded": model is not None}
@@ -55,7 +40,7 @@ def predict(request: CustomerRequest):
 
     try:
     
-    # 2. RATIO CALCULATIONS
+        # 1. RATIO CALCULATIONS
         # Standardizing Income: Use Monthly Income if available, otherwise 1/6th of Half-Yearly
         # We use .fillna(0) to avoid math errors with empty cells
         df['half_yearly_income'] = df['monthly_income']*6
@@ -97,7 +82,7 @@ def predict(request: CustomerRequest):
         elif request.spend_to_income_ratio > 5.0:
             rejection_reason = f"Debt-to-Income ratio ({request.debt_to_income_ratio}) exceeds the limit of 5.0."
             
-        # 3. LIFE STABILITY SCORING FUNCTIONS
+        # 2. LIFE STABILITY SCORING FUNCTIONS
         def age_score(age):
             if age < 22: return 0.1
             elif age <= 25: return 0.4
@@ -132,7 +117,7 @@ def predict(request: CustomerRequest):
         def squash(x, midpoint=0.75, steepness=6):
             return 1 / (1 + np.exp(-steepness * (x - midpoint)))
             
-        # 4. APPLY LIFE STABILITY SCORING
+        # 3. APPLY LIFE STABILITY SCORING
         employment_map = {'Salaried': 1.0, 'Pensioner': 0.5, 'Self-Employed': 0.7}
         base_score = (
             0.20 * df['age'].apply(age_score) +
@@ -151,6 +136,20 @@ def predict(request: CustomerRequest):
     
         # STEP 1: Input from Customer
         input_data = pd.DataFrame([request.dict()])
+        # STEP 2: Load Artifacts once at startup
+        MODEL_PATH = "credit_risk_model.pkl"
+        PREPROCESSOR_PATH = "preprocessor.pkl"
+        LABEL_ENCODER_PATH = "label_encoder.pkl"
+
+        def load_artifacts():
+            if all(os.path.exists(f) for f in [MODEL_PATH, PREPROCESSOR_PATH, LABEL_ENCODER_PATH]):
+                model = joblib.load(MODEL_PATH)
+                preprocessor = joblib.load(PREPROCESSOR_PATH)
+                label_encoder = joblib.load(LABEL_ENCODER_PATH)
+                return model, preprocessor, label_encoder
+            return None, None, None
+        model, preprocessor, label_encoder = load_artifacts()
+
 
         # STEP 3: Preprocessing (One-Hot Encoding)
         # We use the preprocessor saved in Train.py to ensure the columns match
