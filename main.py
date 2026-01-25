@@ -68,7 +68,6 @@ def predict(request: CustomerRequest):
             
         # Spend to Income Ratio
         # Calculation: Total Debit over 6 months / Total Income over 6 months
-        total_6m_income = df['monthly_income_calc'] * 6
         df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits'])
 
         # --- THE GATEKEEPER: HARD ELIGIBILITY RULES ---
