@@ -31,15 +31,16 @@ df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits'])
 def age_score(age):
     if age < 22: return 0.1
     elif age <= 25: return 0.4
-    elif age <= 35: return 0.7
-    elif age <= 55: return 1.0
-    else: return 0.6
+    elif age <= 30 : return 0.7
+    elif age <= 35: return 1.0
+    elif age <= 55: return 0.6
+    else: return 0.5
 
 def dependent_score(n):
-    if n == 0: return 0.7
-    elif n <= 2: return 1.0
-    elif n <= 4: return 0.8
-    else: return 0.6
+    if n == 0: return 1.0
+    elif n <= 2: return 0.7
+    elif n <= 4: return 0.5
+    else: return 0.3
 
 def city_score(city):
     tier1 = ['Karachi', 'Lahore', 'Islamabad']
@@ -84,13 +85,13 @@ df['life_stability_score_adj'] = (df['life_stability_score_adj'] - min_val) / (m
 df['base_risk_score'] = (
     0.45 * df['debt_to_income_ratio'].clip(0, 5) + 
     0.35 * df['spend_to_income'].clip(0, 2) + 
-    0.20 * (1 - df['life_stability_score_adj']) # Lower stability = higher risk
+    0.20 * (1- df['life_stability_score_adj']) # Lower stability = higher risk
 )
 
 def final_risk_label(score):
-    if score > 0.8: return 'Very High'
-    elif score > 0.5: return 'High'
-    elif score > 0.3: return 'Medium'
+    if score > 1.0: return 'Very High'
+    elif score > 0.8: return 'High'
+    elif score > 0.4: return 'Medium'
     else: return 'Low'
 
 df['final_risk_label'] = df['base_risk_score'].apply(final_risk_label)
