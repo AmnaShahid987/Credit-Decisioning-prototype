@@ -57,7 +57,7 @@ def predict(request: CustomerRequest):
         raise HTTPException(status_code=500, detail="Model artifacts not found.")
 
     try:
-            
+              
         # --- THE GATEKEEPER: HARD ELIGIBILITY RULES ---
         rejection_reason = None
 
@@ -85,7 +85,9 @@ def predict(request: CustomerRequest):
                 "confidence": 1.0
             }
   
-            
+         # STEP 1: Input from Customer
+         input_data = pd.DataFrame([request.dict()])  
+        
         # 2. LIFE STABILITY SCORING FUNCTIONS
         def age_score(age):
             if age < 22: return 0.1
@@ -136,11 +138,10 @@ def predict(request: CustomerRequest):
         # Normalization
         df['life_stability_score_adj'] = squash(df['life_stability_score'])
         min_val, max_val = df['life_stability_score_adj'].min(), df['life_stability_score_adj'].max()
-        df['life_stability_score_adj'] = (df['life_stability_score_adj'] - min_val) / (max_val - min_val)       
-    
-        # STEP 1: Input from Customer
-        input_data = pd.DataFrame([request.dict()])
-
+        df['life_stability_score_adj'] = (df['life_stability_score_adj'] - min_val) / (max_val - min_val)
+        
+        # IMPORTANT: Add the column to the DataFrame so the model can see it
+        input_data['life_stability_score'] = life_stability_score_adj
 
         # STEP 2: Preprocessing (One-Hot Encoding)
         # We use the preprocessor saved in Train.py to ensure the columns match
