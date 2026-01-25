@@ -126,11 +126,11 @@ def predict(request: CustomerRequest):
         # 3. APPLY LIFE STABILITY SCORING
         employment_map = {'Salaried': 1.0, 'Pensioner': 0.5, 'Self-Employed': 0.7}
         base_score = (
-            0.20 * df['age'].apply(age_score) +
-            0.30 * df['employment_status'].map(employment_map).fillna(0.5) +
-            0.20 * df['household_dependents'].apply(dependent_score) +
-            0.10 * df['marital_status'].map({'Married': 1.0, 'Single': 0.8}).fillna(0.8) +
-            0.20 * df['city'].apply(city_score)
+            0.20 * input_data['age'].apply(age_score) +
+            0.30 * input_data['employment_status'].map(employment_map).fillna(0.5) +
+            0.20 * input_data['household_dependents'].apply(dependent_score) +
+            0.10 * input_data['marital_status'].map({'Married': 1.0, 'Single': 0.8}).fillna(0.8) +
+            0.20 * input_data['city'].apply(city_score)
         )
         
         # IMPORTANT: Add the column to the DataFrame so the model can see it
@@ -166,7 +166,7 @@ def predict(request: CustomerRequest):
         max_prob = float(max(probabilities))
         
         # PD = Prob(High) + Prob(Very High)
-        pd_value = float(probs[0] + probs[3])
+        pd_value = float(probabilities[0] + probabilities[3])
 
         # STEP 4: Credit Decisioning (Business Logic)
         # Example: Hard decline if liabilities are too high, regardless of ML
