@@ -28,6 +28,21 @@ class CustomerRequest(BaseModel):
     Total_Credits: float
     outstanding_liabilities: float
     # Add any other columns used in your X features
+    
+# 3. Load Artifacts once at startup
+MODEL_PATH = "credit_risk_model.pkl"
+PREPROCESSOR_PATH = "preprocessor.pkl"
+LABEL_ENCODER_PATH = "label_encoder.pkl"
+
+def load_artifacts():
+    if all(os.path.exists(f) for f in [MODEL_PATH, PREPROCESSOR_PATH, LABEL_ENCODER_PATH]):
+        model = joblib.load(MODEL_PATH)
+        preprocessor = joblib.load(PREPROCESSOR_PATH)
+        label_encoder = joblib.load(LABEL_ENCODER_PATH)
+        return model, preprocessor, label_encoder
+    return None, None, None
+model, preprocessor, label_encoder = load_artifacts()
+
 
 @app.get("/")
 def health_check():
@@ -136,22 +151,9 @@ def predict(request: CustomerRequest):
     
         # STEP 1: Input from Customer
         input_data = pd.DataFrame([request.dict()])
-        # STEP 2: Load Artifacts once at startup
-        MODEL_PATH = "credit_risk_model.pkl"
-        PREPROCESSOR_PATH = "preprocessor.pkl"
-        LABEL_ENCODER_PATH = "label_encoder.pkl"
-
-        def load_artifacts():
-            if all(os.path.exists(f) for f in [MODEL_PATH, PREPROCESSOR_PATH, LABEL_ENCODER_PATH]):
-                model = joblib.load(MODEL_PATH)
-                preprocessor = joblib.load(PREPROCESSOR_PATH)
-                label_encoder = joblib.load(LABEL_ENCODER_PATH)
-                return model, preprocessor, label_encoder
-            return None, None, None
-        model, preprocessor, label_encoder = load_artifacts()
 
 
-        # STEP 3: Preprocessing (One-Hot Encoding)
+        # STEP 2: Preprocessing (One-Hot Encoding)
         # We use the preprocessor saved in Train.py to ensure the columns match
         X_processed = preprocessor.transform(input_data)
         
@@ -160,7 +162,7 @@ def predict(request: CustomerRequest):
         if hasattr(X_processed, "toarray"):
             X_processed = X_processed.toarray()
 
-        # STEP 4: Model Prediction
+        # STEP 3: Model Prediction
         # Get the label (e.g., 0, 1, 2)
         prediction_encoded = model.predict(X_processed)
         # Get the human-readable label (e.g., 'Low', 'High')
@@ -170,7 +172,7 @@ def predict(request: CustomerRequest):
         probabilities = model.predict_proba(X_processed)[0]
         max_prob = float(max(probabilities))
 
-        # STEP 5: Credit Decisioning (Business Logic)
+        # STEP 4: Credit Decisioning (Business Logic)
         # Example: Hard decline if liabilities are too high, regardless of ML
         final_decision = prediction_label
         if request.outstanding_liabilities > 5000000:
