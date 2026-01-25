@@ -123,6 +123,9 @@ def predict(request: CustomerRequest):
         def squash(x, midpoint=0.75, steepness=6):
             return 1 / (1 + np.exp(-steepness * (x - midpoint)))
             
+        input_data["yearly_income"] = input_data["monthly_income"] * 12
+        input_data["half_yearly_income"] = input_data["monthly_income"] * 6
+        
         # 3. APPLY LIFE STABILITY SCORING
         employment_map = {'Salaried': 1.0, 'Pensioner': 0.5, 'Self-Employed': 0.7}
         base_score = (
