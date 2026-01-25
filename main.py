@@ -24,6 +24,7 @@ class CustomerRequest(BaseModel):
     marital_status: str
     city: str
     monthly_income: float
+    credit_history_type: str
     Total_Debits: float
     Total_Credits: float
     outstanding_liabilities: float
