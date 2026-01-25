@@ -73,7 +73,7 @@ def predict(request: CustomerRequest):
         # Rule 3: Debt to Income * Spend to Income Ratio Check
         elif request.debt_to_income_ratio > 3.0:
             rejection_reason = f"Debt-to-Income ratio ({request.debt_to_income_ratio}) exceeds the limit of 3.0."
-        elif request.spend_to_income_ratio > 5.0:
+        elif request.spend_to_income > 5.0:
             rejection_reason = f"Spend-to-Income ratio ({request.spend_to_income}) exceeds the limit of 5.0."
 
         # If any rule was triggered, stop here and return the rejection
