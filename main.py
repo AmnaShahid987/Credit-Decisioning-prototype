@@ -110,14 +110,14 @@ def predict(request: CustomerRequest):
             else: return 0.3
             
         def city_score(city):
-        tier1 = ['Karachi', 'Lahore', 'Islamabad']
-        tier2 = ['Faisalabad', 'Multan', 'Peshawar']
+            tier1 = ['Karachi', 'Lahore', 'Islamabad']
+            tier2 = ['Faisalabad', 'Multan', 'Peshawar']
             if city in tier1: return 1.0
             elif city in tier2: return 0.8
             else: return 0.4
             
         def instability_penalty(row):
-        penalty = 0
+            penalty = 0
             if row['age'] < 30 and row['household_dependents'] >= 3:
                 penalty += 0.10
             if row['employment_status'] in ['Self-Employed', 'Pensioner'] and row['household_dependents'] >= 4:
