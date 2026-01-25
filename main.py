@@ -69,6 +69,12 @@ def predict(request: CustomerRequest):
         # Note: Ensure the string 'Pensioner' matches your training data exactly
         elif request.employment_status.strip().title() == "Retired":
             rejection_reason = "Retired personnel are currently not eligible for this loan product."
+        
+        # Rule 3: Debt to Income * Spend to Income Ratio Check
+        elif request.debt_to_income_ratio > 3.0:
+            rejection_reason = f"Debt-to-Income ratio ({request.debt_to_income_ratio}) exceeds the limit of 3.0."
+        elif request.spend_to_income_ratio > 5.0:
+            rejection_reason = f"Spend-to-Income ratio ({request.spend_to_income}) exceeds the limit of 5.0."
 
         # If any rule was triggered, stop here and return the rejection
         if rejection_reason:
@@ -78,11 +84,7 @@ def predict(request: CustomerRequest):
                 "status": "Rejected",
                 "confidence": 1.0
             }
-        # Rule 3: Debt to Income * Spend to Income Ratio Check
-        elif request.debt_to_income_ratio > 3.0:
-            rejection_reason = f"Debt-to-Income ratio ({request.debt_to_income_ratio}) exceeds the limit of 3.0."
-        elif request.spend_to_income_ratio > 5.0:
-            rejection_reason = f"Spend-to-Income ratio ({request.spend_to_income}) exceeds the limit of 5.0."
+  
             
         # 2. LIFE STABILITY SCORING FUNCTIONS
         def age_score(age):
