@@ -23,8 +23,9 @@ class CustomerRequest(BaseModel):
     household_dependents: int
     marital_status: str
     city: str
-    debt_to_income_ratio: float
-    spend_to_income: float
+    monthly_income: float
+    Total_Debits: float
+    Total_Credits: float
     outstanding_liabilities: float
     # Add any other columns used in your X features
 
@@ -65,10 +66,6 @@ def predict(request: CustomerRequest):
         elif request.employment_status.strip().title() == "Retired":
             rejection_reason = "Retired personnel are currently not eligible for this loan product."
 
-        # Rule 3: Debt to Income Ratio Check (> 3.0)
-        elif request.debt_to_income_ratio > 3.0:
-            rejection_reason = f"Debt-to-Income ratio ({request.debt_to_income_ratio}) exceeds the limit of 3.0."
-
         # If any rule was triggered, stop here and return the rejection
         if rejection_reason:
             return {
@@ -78,11 +75,11 @@ def predict(request: CustomerRequest):
                 "confidence": 1.0
             }
 
-        # 2. RATIO CALCULATIONS
+    # 2. RATIO CALCULATIONS
         # Standardizing Income: Use Monthly Income if available, otherwise 1/6th of Half-Yearly
         # We use .fillna(0) to avoid math errors with empty cells
-        df['monthly_income_calc'] = df['monthly_income'].fillna(df['half_yearly_income'] / 6)
-        df['yearly_income'] = df ['monthly_income']*12
+        df['half_yearly_income'] = df['monthly_income']*6
+        df['yearly_income'] = df['monthly_income']*12
             
         # Debt to Income Ratio (DTI)
         # Calculation: Total Liabilities / Monthly Income
@@ -93,8 +90,15 @@ def predict(request: CustomerRequest):
         # Calculation: Total Debit over 6 months / Total Income over 6 months
         total_6m_income = df['monthly_income_calc'] * 6
         df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits'])
+
+        ##Hard Eligibility Rule##
+        # Rule 3: Debt to Income * Spend to Income Ratio Check
+        elif request.debt_to_income_ratio > 3.0:
+            rejection_reason = f"Debt-to-Income ratio ({request.debt_to_income_ratio}) exceeds the limit of 3.0."
+        elif request.spend_to_income_ratio > 5.0:
+            rejection_reason = f"Debt-to-Income ratio ({request.debt_to_income_ratio}) exceeds the limit of 5.0."
             
-        # 3. SCORING FUNCTIONS
+        # 3. LIFE STABILITY SCORING FUNCTIONS
         def age_score(age):
             if age < 22: return 0.1
             elif age <= 25: return 0.4
