@@ -57,14 +57,7 @@ def predict(request: CustomerRequest):
         raise HTTPException(status_code=500, detail="Model artifacts not found.")
 
     try:
-    
-        # 1. RATIO CALCULATIONS
-        # Standardizing Income: Use Monthly Income if available, otherwise 1/6th of Half-Yearly
-        # We use .fillna(0) to avoid math errors with empty cells
-        df['half_yearly_income'] = df['monthly_income']*6
-        df['yearly_income'] = df['monthly_income']*12
             
-
         # --- THE GATEKEEPER: HARD ELIGIBILITY RULES ---
         rejection_reason = None
 
