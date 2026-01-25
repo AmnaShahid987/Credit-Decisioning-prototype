@@ -28,6 +28,7 @@ X_preprocessed = preprocessor.fit_transform(X)
 # 4. Encode Target
 label_encoder = LabelEncoder()
 y_encoded = label_encoder.fit_transform(y)
+print(label_encoder.classes_)
 
 # 5. Train Model (Random Forest)
 model = RandomForestClassifier(random_state=42)
