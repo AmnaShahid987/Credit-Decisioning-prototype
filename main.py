@@ -172,7 +172,7 @@ def predict(request: CustomerRequest):
 
         return {
             "risk_label": final_decision,
-            "probability_of_default": round(pd_value, 4)
+            "probability_of_default": round(pd_value, 4),
             "confidence": round(max_prob, 2),
             "status": "Success"
         }
