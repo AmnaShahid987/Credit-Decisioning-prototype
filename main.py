@@ -28,6 +28,8 @@ class CustomerRequest(BaseModel):
     Total_Debits: float
     Total_Credits: float
     outstanding_liabilities: float
+    debt_to_income_ratio: float
+    spend_to_income: float
     # Add any other columns used in your X features
     
 # 3. Load Artifacts once at startup
@@ -62,14 +64,6 @@ def predict(request: CustomerRequest):
         df['half_yearly_income'] = df['monthly_income']*6
         df['yearly_income'] = df['monthly_income']*12
             
-        # Debt to Income Ratio (DTI)
-        # Calculation: Total Liabilities / Monthly Income
-        # Adding 1 to denominator to prevent DivisionByZero errors
-        df['debt_to_income_ratio'] = df['outstanding_liabilities'] / df['yearly_income'] 
-            
-        # Spend to Income Ratio
-        # Calculation: Total Debit over 6 months / Total Income over 6 months
-        df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits'])
 
         # --- THE GATEKEEPER: HARD ELIGIBILITY RULES ---
         rejection_reason = None
@@ -95,7 +89,7 @@ def predict(request: CustomerRequest):
         elif request.debt_to_income_ratio > 3.0:
             rejection_reason = f"Debt-to-Income ratio ({request.debt_to_income_ratio}) exceeds the limit of 3.0."
         elif request.spend_to_income_ratio > 5.0:
-            rejection_reason = f"Debt-to-Income ratio ({request.debt_to_income_ratio}) exceeds the limit of 5.0."
+            rejection_reason = f"Spend-to-Income ratio ({request.spend_to_income}) exceeds the limit of 5.0."
             
         # 2. LIFE STABILITY SCORING FUNCTIONS
         def age_score(age):
