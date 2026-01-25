@@ -136,7 +136,7 @@ def predict(request: CustomerRequest):
             0.20 * input_data['city'].apply(city_score)
         )
 
-        input['base_score']= base_score
+        input_data['base_score']= base_score
         
         # IMPORTANT: Add the column to the DataFrame so the model can see it
         input_data['life_stability_score'] = (base_score - input_data.apply(instability_penalty, axis=1)).clip(0, 1)
