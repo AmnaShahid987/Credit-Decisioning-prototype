@@ -135,6 +135,8 @@ def predict(request: CustomerRequest):
             0.10 * input_data['marital_status'].map({'Married': 1.0, 'Single': 0.8}).fillna(0.8) +
             0.20 * input_data['city'].apply(city_score)
         )
+
+        input['base_score']= base_score
         
         # IMPORTANT: Add the column to the DataFrame so the model can see it
         input_data['life_stability_score'] = (base_score - input_data.apply(instability_penalty, axis=1)).clip(0, 1)
