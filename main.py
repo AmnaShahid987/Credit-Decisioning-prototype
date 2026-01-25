@@ -68,9 +68,9 @@ def predict(request: CustomerRequest):
         if request.age < 22 or request.age > 65:
             rejection_reason = f"Age {request.age} is outside the eligible range (22-65 years)."
 
-        # Rule 2: Employment Check (No Retired)
+        # Rule 2: Employment Check (No Pensioner)
         # Note: Ensure the string 'Pensioner' matches your training data exactly
-        elif request.employment_status.strip().title() == "Retired":
+        elif request.employment_status.strip().title() == "Pensioner":
             rejection_reason = "Retired personnel are currently not eligible for this loan product."
         
         # Rule 3: Debt to Income * Spend to Income Ratio Check
