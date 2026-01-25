@@ -1,6 +1,7 @@
 import os
 import joblib
 import pandas as pd
+import numpy as np
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
@@ -57,6 +58,8 @@ def predict(request: CustomerRequest):
         raise HTTPException(status_code=500, detail="Model artifacts not found.")
 
     try:
+        # STEP 1: Input from Customer
+        input_data = pd.DataFrame([request.dict()])
               
         # --- THE GATEKEEPER: HARD ELIGIBILITY RULES ---
         rejection_reason = None
@@ -84,9 +87,6 @@ def predict(request: CustomerRequest):
                 "status": "Rejected",
                 "confidence": 1.0
             }
-  
-        # STEP 1: Input from Customer
-        input_data = pd.DataFrame([request.dict()])  
         
         # 2. LIFE STABILITY SCORING FUNCTIONS
         def age_score(age):
@@ -132,16 +132,19 @@ def predict(request: CustomerRequest):
             0.10 * df['marital_status'].map({'Married': 1.0, 'Single': 0.8}).fillna(0.8) +
             0.20 * df['city'].apply(city_score)
         )
-            
-        df['life_stability_score'] = (base_score - df.apply(instability_penalty, axis=1)).clip(0, 1)
-            
-        # Normalization
-        df['life_stability_score_adj'] = squash(df['life_stability_score'])
-        min_val, max_val = df['life_stability_score_adj'].min(), df['life_stability_score_adj'].max()
-        df['life_stability_score_adj'] = (df['life_stability_score_adj'] - min_val) / (max_val - min_val)
         
         # IMPORTANT: Add the column to the DataFrame so the model can see it
-        input_data['life_stability_score'] = life_stability_score_adj
+        input_data['life_stability_score'] = (base_score - input_data.apply(instability_penalty, axis=1)).clip(0, 1)
+            
+        # Normalization logic
+        input_data['life_stability_score_adj'] = squash(input_data['life_stability_score'])
+        
+        # --- CRITICAL FIX: MIN-MAX NORMALIZATION ---
+        # Since input_data has only 1 row, we use the global min/max observed in training.
+        # Replace 0.0 and 1.0 with the actual min/max values from your training data if known.
+        train_min = 0.0 
+        train_max = 1.0
+        input_data['life_stability_score_adj'] = (input_data['life_stability_score_adj'] - train_min) / (train_max - train_min)
 
         # STEP 2: Preprocessing (One-Hot Encoding)
         # We use the preprocessor saved in Train.py to ensure the columns match
