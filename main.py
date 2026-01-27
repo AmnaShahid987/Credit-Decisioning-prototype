@@ -89,8 +89,12 @@ def predict(request: CustomerRequest):
         # Note: Ensure the string 'Pensioner' matches your training data exactly
         elif request.employment_status.strip().title() == "Pensioner":
             rejection_reason = "Retired personnel are currently not eligible for this loan product."
+            
+        # Rule 3:
+        elif request.outstanding_liabilities >= 5000000:
+            rejection_reason = "Your outstanding liabilities are greater than 5000000, your request cannot be processed."
         
-        # Rule 3: Debt to Income * Spend to Income Ratio Check
+        # Rule 4: Debt to Income * Spend to Income Ratio Check
         elif request.debt_to_income_ratio > 3.0:
             rejection_reason = f"Debt-to-Income ratio ({request.debt_to_income_ratio}) exceeds the limit of 3.0."
         elif request.spend_to_income > 5.0:
@@ -195,10 +199,7 @@ def predict(request: CustomerRequest):
         pd_value = float(probabilities[0] + probabilities[3])
 
         # STEP 4: Credit Decisioning (Business Logic)
-        # Example: Hard decline if liabilities are too high, regardless of ML
-        final_decision = prediction_label
-        if request.outstanding_liabilities > 5000000:
-            final_decision = "Very High"
+      
 
         return {
             "risk_label": final_decision,
