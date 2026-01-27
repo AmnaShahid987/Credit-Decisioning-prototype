@@ -70,10 +70,13 @@ def predict(request: CustomerRequest):
         # Calculation: Total Liabilities / Yearly Income
         # Adding 1 to denominator to prevent DivisionByZero errors
         df['debt_to_income_ratio'] = df['outstanding_liabilities'] / df['yearly_income'] 
+                input_data ['spend_to_income]= spend_to_income
+
 
         # Spend to Income Ratio
         # Calculation: Total Debit over 6 months / Total Income over 6 months
         df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits'])
+        input_data ['spend_to_income]= spend_to_income
         
         # --- THE GATEKEEPER: HARD ELIGIBILITY RULES ---
         rejection_reason = None
@@ -166,8 +169,12 @@ def predict(request: CustomerRequest):
         input_data['life_stability_score_adj'] = (input_data['life_stability_score_adj'] - train_min) / (train_max - train_min)
 
         # STEP 2: Preprocessing (One-Hot Encoding)
+
+        #Drop the columns you need to drop from the Customer Input 
+        cols_to_exclude = ['loan_amount', 'loan_purpose']
+        X_features = input_data.drop(columns=cols_to_exclude)
         # We use the preprocessor saved in Train.py to ensure the columns match
-        X_processed = preprocessor.transform(input_data)
+        X_processed = preprocessor.transform(X_features)
         
         # Convert back to DataFrame if your model expects feature names (optional but safer)
         # Note: If preprocessor returns a sparse matrix, convert to dense
