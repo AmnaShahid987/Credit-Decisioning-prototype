@@ -29,8 +29,8 @@ class CustomerRequest(BaseModel):
     Total_Debits: float
     Total_Credits: float
     outstanding_liabilities: float
-    debt_to_income_ratio: float
-    spend_to_income: float
+    loan_amount: float
+    loan_purpose: str
     # Add any other columns used in your X features
     
 # 3. Load Artifacts once at startup
@@ -60,7 +60,21 @@ def predict(request: CustomerRequest):
     try:
         # STEP 1: Input from Customer
         input_data = pd.DataFrame([request.dict()])
-              
+        
+        # STEP 2: RATIO CALCULATIONS  
+        # Standardizing Income: Use Monthly Income if availale
+        # We use .fillna(0) to avoid math errors with empty cells
+        df['yearly_income'] = df ['monthly_income']*12
+
+        # Debt to Income Ratio (DTI)
+        # Calculation: Total Liabilities / Yearly Income
+        # Adding 1 to denominator to prevent DivisionByZero errors
+        df['debt_to_income_ratio'] = df['outstanding_liabilities'] / df['yearly_income'] 
+
+        # Spend to Income Ratio
+        # Calculation: Total Debit over 6 months / Total Income over 6 months
+        df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits'])
+        
         # --- THE GATEKEEPER: HARD ELIGIBILITY RULES ---
         rejection_reason = None
 
