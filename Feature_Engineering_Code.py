@@ -1,3 +1,5 @@
+
+#Feature Engineering Code#
 import pandas as pd
 import numpy as np
 import joblib
@@ -14,7 +16,7 @@ except FileNotFoundError:
 # 2. RATIO CALCULATIONS
 # Standardizing Income: Use Monthly Income if available, otherwise 1/6th of Half-Yearly
 # We use .fillna(0) to avoid math errors with empty cells
-df['monthly_income_calc'] = df['monthly_income'].fillna(df['half_yearly_income'] / 6)
+
 df['yearly_income'] = df ['monthly_income']*12
 
 # Debt to Income Ratio (DTI)
@@ -24,7 +26,6 @@ df['debt_to_income_ratio'] = df['outstanding_liabilities'] / df['yearly_income']
 
 # Spend to Income Ratio
 # Calculation: Total Debit over 6 months / Total Income over 6 months
-total_6m_income = df['monthly_income_calc'] * 6
 df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits'])
 
 # 3. SCORING FUNCTIONS
@@ -83,9 +84,9 @@ df['life_stability_score_adj'] = (df['life_stability_score_adj'] - min_val) / (m
 # 5. FINAL RISK MODELING (THE TEACHER)
 # This creates the target label for the ML model to learn
 df['base_risk_score'] = (
-    0.45 * df['debt_to_income_ratio'].clip(0, 5) + 
+    0.40 * df['debt_to_income_ratio'].clip(0, 5) + 
     0.35 * df['spend_to_income'].clip(0, 2) + 
-    0.20 * (1- df['life_stability_score_adj']) # Lower stability = higher risk
+    0.25 * (1- df['life_stability_score_adj']) # Lower stability = higher risk
 )
 
 def final_risk_label(score):
@@ -96,9 +97,16 @@ def final_risk_label(score):
 
 df['final_risk_label'] = df['base_risk_score'].apply(final_risk_label)
 
-# 6. SAVE PROCESSED DATA
-# Dropping the calculation helper column before saving
-df = df.drop(columns=['monthly_income_calc'])
-df.to_csv('feature_processed_data.csv', index=False)
+# 6. Probability of Default# 
+# Calculate min and max for base_risk_score to normalize
+min_base_risk_score = df['base_risk_score'].min()
+max_base_risk_score = df['base_risk_score'].max()
 
-print("Feature Engineering complete. Processed data saved with DTI and Spend ratios.")
+# Normalize base_risk_score to get probability of default (0 to 1)
+# A simple min-max scaling is used here.
+df['probability_of_default'] = (df['base_risk_score'] - min_base_risk_score) / (max_base_risk_score - min_base_risk_score)
+
+
+# 7. Save the processed data to a CSV file
+df.to_csv('feature_processed_data.csv', index=False)
+print("Feature Enginering Complete. Base Risk Score, Risk Label and Probability of Default added to feature_processed_data.csv.")
