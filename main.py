@@ -199,11 +199,33 @@ def predict(request: CustomerRequest):
         pd_value = float(probabilities[0] + probabilities[3])
 
         # STEP 4: Credit Decisioning (Business Logic)
+        # Define the credit_decision function
+        def final_decision(row):
+
+        if row['final_risk_label'] == 'Very High':
+            return final_decision =='Decline'
+        if row['final_risk_label'] == 'High'and row['credit_history_type'] == 'Thin File':
+            return final_decision == 'Review'
+        if row['final_risk_label'] == 'High' and row['credit_history_type'] == 'Thick File':
+            return final_decision == 'Review'
+        if row['final_risk_label']== 'High' and row['credit_history_type'] == 'No Credit History':
+            return final_decision == 'Approve'
+        if row['final_risk_label'] == 'Medium' and row['credit_history_type'] == 'No Credit History':
+            return final_decision == 'Approve'
+        if row['final_risk_label'] == 'Medium' and row['credit_history_type'] == 'Thin File':
+            return final_decision == 'Approve'
+        if row['final_risk_label'] == 'Medium' and row['credit_history_type'] == 'Thick File':
+            return final_decision == 'Review'
+            
+        # Default for Low risk and any remaining Medium risk cases not caught above
+        return final_decision == 'Approve'
       
 
         return {
-            "risk_label": final_decision,
+            "Risk" : final_risk_label,
+            "Credit Score" : base_score
             "probability_of_default": round(pd_value, 4),
+            "Decision" : final_decision,
             "confidence": round(max_prob, 2),
             "status": "Success"
         }
