@@ -97,6 +97,25 @@ def final_risk_label(score):
 
 df['final_risk_label'] = df['base_risk_score'].apply(final_risk_label)
 
+# Define the credit_decision function as in the original notebook
+def credit_decision(row):
+
+    if row['final_risk_label'] == 'Very High':
+       return 'Decline'
+    if row['final_risk_label'] == 'High'and row['credit_history_type'] == 'Thin File':
+        return 'Review'
+    if row['final_risk_label'] == 'High' and row['credit_history_type'] == 'Thick File':
+         return 'Review'
+    if row['final_risk_label']== 'High' and row['credit_history_type'] == 'No Credit History':
+        return 'Approve'
+    if row['final_risk_label'] == 'Medium' and row['credit_history_type'] == 'No Credit History':
+     return 'Approve'
+    if row['final_risk_label'] == 'Medium' and row['credit_history_type'] == 'Thin File':
+     return 'Approve'
+    if row['final_risk_label'] == 'Medium' and row['credit_history_type'] == 'Thick File':
+     return 'Review'
+    # Default for Low risk and any remaining Medium risk cases not caught above
+    return 'Approve'
 
 # 7. Save the processed data to a CSV file
 df.to_csv('feature_processed_data.csv', index=False)
