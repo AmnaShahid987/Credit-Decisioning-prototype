@@ -223,7 +223,7 @@ def predict(request: CustomerRequest):
 
         return {
             "Risk" : final_risk_label,
-            "Credit Score" : base_score
+            "Credit Score" : base_score,
             "probability_of_default": round(pd_value, 4),
             "Decision" : final_decision,
             "confidence": round(max_prob, 2),
