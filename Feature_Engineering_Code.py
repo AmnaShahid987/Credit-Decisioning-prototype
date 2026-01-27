@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 import joblib
+import os
 
 # 1. LOAD DATA
 try:
@@ -22,11 +23,11 @@ df['yearly_income'] = df ['monthly_income']*12
 # Debt to Income Ratio (DTI)
 # Calculation: Total Liabilities / Monthly Income
 # Adding 1 to denominator to prevent DivisionByZero errors
-df['debt_to_income_ratio'] = df['outstanding_liabilities'] / df['yearly_income'] 
+df['debt_to_income_ratio'] = df['outstanding_liabilities'] / df['yearly_income'] + 1
 
 # Spend to Income Ratio
 # Calculation: Total Debit over 6 months / Total Income over 6 months
-df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits'])
+df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits']) + 1 
 
 # 3. SCORING FUNCTIONS
 def age_score(age):
@@ -97,26 +98,20 @@ def final_risk_label(score):
 
 df['final_risk_label'] = df['base_risk_score'].apply(final_risk_label)
 
-# Define the credit_decision function as in the original notebook
-def credit_decision(row):
+# 7. Save the processesd data to a CSV file 
 
-    if row['final_risk_label'] == 'Very High':
-       return 'Decline'
-    if row['final_risk_label'] == 'High'and row['credit_history_type'] == 'Thin File':
-        return 'Review'
-    if row['final_risk_label'] == 'High' and row['credit_history_type'] == 'Thick File':
-         return 'Review'
-    if row['final_risk_label']== 'High' and row['credit_history_type'] == 'No Credit History':
-        return 'Approve'
-    if row['final_risk_label'] == 'Medium' and row['credit_history_type'] == 'No Credit History':
-     return 'Approve'
-    if row['final_risk_label'] == 'Medium' and row['credit_history_type'] == 'Thin File':
-     return 'Approve'
-    if row['final_risk_label'] == 'Medium' and row['credit_history_type'] == 'Thick File':
-     return 'Review'
-    # Default for Low risk and any remaining Medium risk cases not caught above
-    return 'Approve'
+output_filename = 'feature_processed_data.csv'
 
-# 7. Save the processed data to a CSV file
-df.to_csv('feature_processed_data.csv', index=False)
-print("Feature Enginering Complete. Base Risk Score and Risk Label added to feature_processed_data.csv.")
+try:
+    # Check if file is open elsewhere
+    if os.path.exists(output_filename):
+        os.remove(output_filename) # Try to delete it first to test permissions
+    
+    df.to_csv(output_filename, index=False)
+    print(f"✅ Success! File saved as {output_filename}")
+
+except PermissionError:
+    print(f"❌ Error: Please close '{output_filename}' in Excel or other programs and try again.")
+except Exception as e:
+    print(f"❌ An unexpected error occurred: {e}")
+
