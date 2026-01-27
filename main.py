@@ -70,7 +70,7 @@ def predict(request: CustomerRequest):
         # Calculation: Total Liabilities / Yearly Income
         # Adding 1 to denominator to prevent DivisionByZero errors
         df['debt_to_income_ratio'] = df['outstanding_liabilities'] / df['yearly_income'] 
-        input_data ['debt_to_income_ratio'] = debt_to_income ratio
+        input_data ['debt_to_income_ratio'] = debt_to_income_ratio
 
 
         # Spend to Income Ratio
