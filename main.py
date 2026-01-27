@@ -70,13 +70,13 @@ def predict(request: CustomerRequest):
         # Calculation: Total Liabilities / Yearly Income
         # Adding 1 to denominator to prevent DivisionByZero errors
         df['debt_to_income_ratio'] = df['outstanding_liabilities'] / df['yearly_income'] 
-                input_data ['spend_to_income]= spend_to_income
+        input_data ['debt_to_income_ratio'] = debt_to_income ratio
 
 
         # Spend to Income Ratio
         # Calculation: Total Debit over 6 months / Total Income over 6 months
         df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits'])
-        input_data ['spend_to_income']= spend_to_income
+        input_data ['spend_to_income'] = spend_to_income
         
         # --- THE GATEKEEPER: HARD ELIGIBILITY RULES ---
         rejection_reason = None
