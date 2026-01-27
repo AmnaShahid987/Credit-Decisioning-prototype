@@ -97,16 +97,7 @@ def final_risk_label(score):
 
 df['final_risk_label'] = df['base_risk_score'].apply(final_risk_label)
 
-# 6. Probability of Default# 
-# Calculate min and max for base_risk_score to normalize
-min_base_risk_score = df['base_risk_score'].min()
-max_base_risk_score = df['base_risk_score'].max()
-
-# Normalize base_risk_score to get probability of default (0 to 1)
-# A simple min-max scaling is used here.
-df['probability_of_default'] = (df['base_risk_score'] - min_base_risk_score) / (max_base_risk_score - min_base_risk_score)
-
 
 # 7. Save the processed data to a CSV file
 df.to_csv('feature_processed_data.csv', index=False)
-print("Feature Enginering Complete. Base Risk Score, Risk Label and Probability of Default added to feature_processed_data.csv.")
+print("Feature Enginering Complete. Base Risk Score and Risk Label added to feature_processed_data.csv.")
