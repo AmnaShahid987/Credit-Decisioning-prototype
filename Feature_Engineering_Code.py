@@ -91,9 +91,9 @@ df['base_risk_score'] = (
 )
 
 def final_risk_label(score):
-    if score > 1.0: return 'Very High'
-    elif score > 0.8: return 'High'
-    elif score > 0.4: return 'Medium'
+    if score >= 2.6: return 'Very High'
+    elif score >= 2.0: return 'High'
+    elif score >= 1.5: return 'Medium'
     else: return 'Low'
 
 df['final_risk_label'] = df['base_risk_score'].apply(final_risk_label)
