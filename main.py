@@ -159,6 +159,13 @@ def predict(request: CustomerRequest):
         train_max = 1.0
         input_data['life_stability_score_adj'] = (input_data['life_stability_score_adj'] - train_min) / (train_max - train_min)
 
+        # Calculate base_risk_score (same as training)
+        input_data['base_risk_score'] = (
+            0.40 * input_data['debt_to_income_ratio'].clip(0, 5) + 
+            0.35 * input_data['spend_to_income'].clip(0, 2) + 
+            0.25 * (1 - input_data['life_stability_score_adj'])
+        )
+
         # STEP 2: Preprocessing (One-Hot Encoding)
         # Drop the columns that aren't features (only if they exist)
         cols_to_exclude = ['yearly_income','loan_amount', 'loan_purpose']
@@ -206,7 +213,7 @@ def predict(request: CustomerRequest):
             # Default for Low risk and any remaining cases
             return 'Approve'
         
-        decision = final_decision(prediction_label, request.credit_history_type)
+        decision = final_decsision (final_risk_label, request.credit_history_type)
         
         # Calculate base score (example formula - adjust as needed)
         base_score = int(300 + (700 * (1 - pd_value)))
@@ -214,7 +221,7 @@ def predict(request: CustomerRequest):
         return {
             "Risk": prediction_label,
             "Credit Score": base_score,
-            "probability_of_default": round(pd_value, 4),
+            "Probability_of_Default": round(pd_value, 4),
             "Decision": decision,
             "confidence": round(max_prob, 2),
             "status": "Success"
