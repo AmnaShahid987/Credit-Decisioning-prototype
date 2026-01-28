@@ -216,7 +216,7 @@ def predict(request: CustomerRequest):
         decision = final_decision (final_risk_label, request.credit_history_type)
         
         # Calculate base score (example formula - adjust as needed)
-        base_score = int(100 * base_risk_score)
+        base_score = int(300 + 850 * (1 - pd_value))
 
         return {
             "Risk": final_risk_label,
