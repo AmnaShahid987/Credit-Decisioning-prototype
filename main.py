@@ -166,7 +166,7 @@ def predict(request: CustomerRequest):
 
         # STEP 2: Preprocessing (One-Hot Encoding)
         # Drop the columns that aren't features (only if they exist)
-        cols_to_exclude = ['yearly_income','base_risk_score','loan_amount', 'loan_purpose']
+        cols_to_exclude = ['yearly_income','loan_amount', 'loan_purpose']
         X_features = input_data.drop(columns=cols_to_exclude, errors='ignore')
         
         # Use the preprocessor saved in Train.py
