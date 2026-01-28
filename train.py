@@ -36,12 +36,12 @@ df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits']) + 1
 
 # 3. SCORING FUNCTIONS
 def age_score(age):
-    if age < 22: return 0.1
-    elif age <= 25: return 0.4
+    if age < 22: return 0.4
+    elif age <= 25: return 0.6
     elif age <= 30 : return 0.7
-    elif age <= 35: return 1.0
-    elif age <= 55: return 0.6
-    else: return 0.5
+    elif age <= 55: return 1.0 
+    elif age > 55: return 0.6
+    else: return 0
 
 def dependent_score(n):
     if n == 0: return 1.0
@@ -54,14 +54,14 @@ def city_score(city):
     tier2 = ['Faisalabad', 'Multan', 'Peshawar']
     if city in tier1: return 1.0
     elif city in tier2: return 0.8
-    else: return 0.4
+    else: return 0.2
 
 def instability_penalty(row):
     penalty = 0
     if row['age'] < 30 and row['household_dependents'] >= 3:
-        penalty += 0.10
+        penalty += 0.1
     if row['employment_status'] in ['Self-Employed', 'Pensioner'] and row['household_dependents'] >= 4:
-        penalty += 0.10
+        penalty += 0.1
     if row['age'] > 55 and row['employment_status'] not in ['Salaried', 'Pensioner']:
         penalty += 0.05
     return penalty
@@ -70,13 +70,13 @@ def squash(x, midpoint=0.75, steepness=6):
     return 1 / (1 + np.exp(-steepness * (x - midpoint)))
 
 # 4. APPLY LIFE STABILITY SCORING
-employment_map = {'Salaried': 1.0, 'Pensioner': 0.5, 'Self-Employed': 0.7}
+employment_map = {'Salaried': 10, 'Pensioner': 5, 'Self-Employed': 7}
 
 base_score = (
     0.20 * df['age'].apply(age_score) +
     0.30 * df['employment_status'].map(employment_map).fillna(0.5) +
     0.20 * df['household_dependents'].apply(dependent_score) +
-    0.10 * df['marital_status'].map({'Married': 1.0, 'Single': 0.8}).fillna(0.8) +
+    0.10 * df['marital_status'].map({'Married': 10, 'Single': 8}).fillna(0.8) +
     0.20 * df['city'].apply(city_score)
 )
 
@@ -96,9 +96,9 @@ df['base_risk_score'] = (
 )
 
 def final_risk_label(score):
-    if score > 1.0: return 'Very High'
-    elif score > 0.8: return 'High'
-    elif score > 0.4: return 'Medium'
+    if score > 2.6: return 'Very High'
+    elif score > 2.0: return 'High'
+    elif score > 1.5: return 'Medium'
     else: return 'Low'
 
 df['final_risk_label'] = df['base_risk_score'].apply(final_risk_label)
