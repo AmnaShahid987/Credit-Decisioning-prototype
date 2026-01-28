@@ -65,7 +65,7 @@ def predict(request: CustomerRequest):
         # Standardizing Income: Use Monthly Income if availale
         # We use .fillna(0) to avoid math errors with empty cells
         df['yearly_income'] = df ['monthly_income']*12
-        input_data ['yearly income'] = 'yearly_income
+        input_data ['yearly_income'] = yearly_income
 
         # Debt to Income Ratio (DTI)
         # Calculation: Total Liabilities / Yearly Income
@@ -145,8 +145,6 @@ def predict(request: CustomerRequest):
         def squash(x, midpoint=0.75, steepness=6):
             return 1 / (1 + np.exp(-steepness * (x - midpoint)))
             
-        input_data["yearly_income"] = input_data["monthly_income"] * 12
-        input_data["half_yearly_income"] = input_data["monthly_income"] * 6
         
         # 3. APPLY LIFE STABILITY SCORING
         employment_map = {'Salaried': 1.0, 'Pensioner': 0.5, 'Self-Employed': 0.7}
