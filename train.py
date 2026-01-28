@@ -127,7 +127,7 @@ df = pd.read_csv('feature_processed_data.csv')
 # 2. Identify Target and Features
 # We drop the target and any IDs. 
 # ALSO drop any 'prob_' columns if they were left over from previous runs
-cols_to_drop = ['customer_id', 'final_risk_label', 'probability_of_default'] + [c for c in df.columns if c.startswith('prob_')]
+cols_to_drop = ['customer_id','yearly_income','final_risk_label', 'probability_of_default'] + [c for c in df.columns if c.startswith('prob_')]
 y = df['final_risk_label']
 X = df.drop(columns=[col for col in cols_to_drop if col in df.columns])
 
