@@ -65,6 +65,7 @@ def predict(request: CustomerRequest):
         # Standardizing Income: Use Monthly Income if availale
         # We use .fillna(0) to avoid math errors with empty cells
         df['yearly_income'] = df ['monthly_income']*12
+        input_data ['yearly income'] = 'yearly_income
 
         # Debt to Income Ratio (DTI)
         # Calculation: Total Liabilities / Yearly Income
