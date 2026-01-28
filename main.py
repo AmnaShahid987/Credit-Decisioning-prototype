@@ -166,7 +166,7 @@ def predict(request: CustomerRequest):
 
         # STEP 2: Preprocessing (One-Hot Encoding)
         # Drop the columns that aren't features (only if they exist)
-        cols_to_exclude = ['yearly_income','loan_amount', 'loan_purpose']
+        cols_to_exclude = ['yearly_income','base_risk_score','loan_amount', 'loan_purpose']
         X_features = input_data.drop(columns=cols_to_exclude, errors='ignore')
         
         # Use the preprocessor saved in Train.py
@@ -195,20 +195,20 @@ def predict(request: CustomerRequest):
                 pd_value += float(probabilities[idx])
 
         # STEP 4: Credit Decisioning (Business Logic)
-        def final_decision(final_risk_label, credit_history):
-            if final_risk_label == 'Very High':
+        def final_decision(risk_label, credit_history):
+            if risk_label == 'Very High':
                 return 'Decline'
-            if final_risk_label == 'High' and credit_history == 'Thin File':
+            if risk_label == 'High' and credit_history == 'Thin File':
                 return 'Review'
-            if final_risk_label == 'High' and credit_history == 'Thick File':
+            if risk_label == 'High' and credit_history == 'Thick File':
                 return 'Review'
-            if final_risk_label == 'High' and credit_history == 'No Credit History':
+            if risk_label == 'High' and credit_history == 'No Credit History':
                 return 'Approve'
-            if final_risk_label == 'Medium' and credit_history == 'No Credit History':
+            if risk_label == 'Medium' and credit_history == 'No Credit History':
                 return 'Approve'
-            if final_risk_label == 'Medium' and credit_history == 'Thin File':
+            if risk_label == 'Medium' and credit_history == 'Thin File':
                 return 'Approve'
-            if final_risk_label == 'Medium' and credit_history == 'Thick File':
+            if risk_label == 'Medium' and credit_history == 'Thick File':
                 return 'Review'
             # Default for Low risk and any remaining cases
             return 'Approve'
@@ -220,7 +220,7 @@ def predict(request: CustomerRequest):
 
         return {
             "Risk": final_risk_label,
-            "Credit Score": base_risk_score,
+            "Credit Score": base_score,
             "Probability_of_Default": round(pd_value, 4),
             "Decision": decision,
             "confidence": round(max_prob, 2),
