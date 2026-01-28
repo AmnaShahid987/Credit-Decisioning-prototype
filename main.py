@@ -178,7 +178,7 @@ def predict(request: CustomerRequest):
 
         # STEP 3: Model Prediction
         prediction_encoded = model.predict(X_processed)
-        prediction_label = label_encoder.inverse_transform(prediction_encoded)[0]
+        final_risk_label = label_encoder.inverse_transform(prediction_encoded)[0]
         
         # Get probability of default
         probabilities = model.predict_proba(X_processed)[0]
