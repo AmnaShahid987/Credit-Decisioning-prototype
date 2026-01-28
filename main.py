@@ -219,7 +219,7 @@ def predict(request: CustomerRequest):
         base_score = int(300 + (700 * (1 - pd_value)))
 
         return {
-            "Risk": prediction_label,
+            "Risk": risk_label,
             "Credit Score": base_score,
             "Probability_of_Default": round(pd_value, 4),
             "Decision": decision,
