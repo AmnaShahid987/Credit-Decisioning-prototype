@@ -213,7 +213,7 @@ def predict(request: CustomerRequest):
             # Default for Low risk and any remaining cases
             return 'Approve'
         
-        decision = final_decsision (final_risk_label, request.credit_history_type)
+        decision = final_decision (final_risk_label, request.credit_history_type)
         
         # Calculate base score (example formula - adjust as needed)
         base_score = int(300 + (700 * (1 - pd_value)))
