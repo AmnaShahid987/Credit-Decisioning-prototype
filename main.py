@@ -148,7 +148,7 @@ def predict(request: CustomerRequest):
         
         # 3. APPLY LIFE STABILITY SCORING
         employment_map = {'Salaried': 1.0, 'Pensioner': 0.5, 'Self-Employed': 0.7}
-        base_score = (
+        life_stability_score = (
             0.20 * input_data['age'].apply(age_score) +
             0.30 * input_data['employment_status'].map(employment_map).fillna(0.5) +
             0.20 * input_data['household_dependents'].apply(dependent_score) +
@@ -156,10 +156,10 @@ def predict(request: CustomerRequest):
             0.20 * input_data['city'].apply(city_score)
         )
 
-        input_data['base_risk_score']= base_score
+        input_data['life_stability_score']= life_stability_score
         
         # IMPORTANT: Add the column to the DataFrame so the model can see it
-        input_data['life_stability_score'] = (base_score - input_data.apply(instability_penalty, axis=1)).clip(0, 1)
+        input_data['life_stability_score'] = (life_stability_score - input_data.apply(instability_penalty, axis=1)).clip(0, 1)
             
         # Normalization logic
         input_data['life_stability_score_adj'] = squash(input_data['life_stability_score'])
@@ -174,7 +174,7 @@ def predict(request: CustomerRequest):
         # STEP 2: Preprocessing (One-Hot Encoding)
 
         #Drop the columns you need to drop from the Customer Input 
-        cols_to_exclude = ['loan_amount', 'loan_purpose']
+        cols_to_exclude = ['final_risk_label','probability_of_default','customer_id','loan_amount', 'loan_purpose']
         X_features = input_data.drop(columns=cols_to_exclude)
         # We use the preprocessor saved in Train.py to ensure the columns match
         X_processed = preprocessor.transform(X_features)
