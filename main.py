@@ -25,6 +25,7 @@ class CustomerRequest(BaseModel):
     marital_status: str
     city: str
     monthly_income: float
+    yearly_income:float
     credit_history_type: str
     Total_Debits: float
     Total_Credits: float
@@ -61,9 +62,6 @@ def predict(request: CustomerRequest):
         # STEP 1: Input from Customer
         input_data = pd.DataFrame([request.dict()])
         
-        # STEP 2: RATIO CALCULATIONS  
-        # Standardizing Income: Use Monthly Income if available
-        input_data['yearly_income'] = input_data['monthly_income'] * 12
 
         # Debt to Income Ratio (DTI)
         # Calculation: Total Liabilities / Yearly Income
