@@ -195,32 +195,32 @@ def predict(request: CustomerRequest):
                 pd_value += float(probabilities[idx])
 
         # STEP 4: Credit Decisioning (Business Logic)
-        def final_decision(risk_label, credit_history):
-            if risk_label == 'Very High':
+        def final_decision(final_risk_label, credit_history):
+            if final_risk_label == 'Very High':
                 return 'Decline'
-            if risk_label == 'High' and credit_history == 'Thin File':
+            if final_risk_label == 'High' and credit_history == 'Thin File':
                 return 'Review'
-            if risk_label == 'High' and credit_history == 'Thick File':
+            if final_risk_label == 'High' and credit_history == 'Thick File':
                 return 'Review'
-            if risk_label == 'High' and credit_history == 'No Credit History':
+            if final_risk_label == 'High' and credit_history == 'No Credit History':
                 return 'Approve'
-            if risk_label == 'Medium' and credit_history == 'No Credit History':
+            if final_risk_label == 'Medium' and credit_history == 'No Credit History':
                 return 'Approve'
-            if risk_label == 'Medium' and credit_history == 'Thin File':
+            if final_risk_label == 'Medium' and credit_history == 'Thin File':
                 return 'Approve'
-            if risk_label == 'Medium' and credit_history == 'Thick File':
+            if final_risk_label == 'Medium' and credit_history == 'Thick File':
                 return 'Review'
             # Default for Low risk and any remaining cases
             return 'Approve'
         
-        decision = final_decision (risk_label, request.credit_history_type)
+        decision = final_decision (final_risk_label, request.credit_history_type)
         
         # Calculate base score (example formula - adjust as needed)
         base_score = int(300 + (700 * (1 - pd_value)))
 
         return {
-            "Risk": risk_label,
-            "Credit Score": base_score,
+            "Risk": final_risk_label,
+            "Credit Score": base_risk_score,
             "Probability_of_Default": round(pd_value, 4),
             "Decision": decision,
             "confidence": round(max_prob, 2),
