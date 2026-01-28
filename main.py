@@ -67,11 +67,11 @@ def predict(request: CustomerRequest):
 
         # Debt to Income Ratio (DTI)
         # Calculation: Total Liabilities / Yearly Income
-        input_data['debt_to_income_ratio'] = input_data['outstanding_liabilities'] / input_data['yearly_income']
+        input_data['debt_to_income_ratio'] = input_data['outstanding_liabilities'] / input_data['yearly_income'] + 1
 
         # Spend to Income Ratio
         # Calculation: Total Debit over 6 months / Total Income over 6 months
-        input_data['spend_to_income'] = input_data['Total_Debits'] / input_data['Total_Credits']
+        input_data['spend_to_income'] = input_data['Total_Debits'] / input_data['Total_Credits'] + 1
         
         # --- THE GATEKEEPER: HARD ELIGIBILITY RULES ---
         rejection_reason = None
