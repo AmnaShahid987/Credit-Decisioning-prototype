@@ -186,13 +186,15 @@ def predict(request: CustomerRequest):
         probabilities = model.predict_proba(X_processed)[0]
         max_prob = float(max(probabilities))
         
-        # Assuming label order: ['Low', 'Medium', 'High', 'Very High']
-        # PD = Prob(High) + Prob(Very High)
-        # Adjust indices based on your actual label_encoder classes
-        if len(probabilities) >= 4:
-            pd_value = float(probabilities[0] + probabilities[3])  # High + Very High
-        else:
-            pd_value = float(max_prob)
+        # Label encoder classes from training: ['High', 'Low', 'Medium', 'Very High']
+        # Get the class order from label_encoder
+        classes = label_encoder.classes_
+        
+        # Calculate PD = P(High) + P(Very High)
+        pd_value = 0.0
+        for idx, cls in enumerate(classes):
+            if cls in ['High', 'Very High']:
+                pd_value += float(probabilities[idx])
 
         # STEP 4: Credit Decisioning (Business Logic)
         def final_decision(risk_label, credit_history):
