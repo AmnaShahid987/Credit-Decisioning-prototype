@@ -70,7 +70,7 @@ def squash(x, midpoint=0.75, steepness=6):
     return 1 / (1 + np.exp(-steepness * (x - midpoint)))
 
 # 4. APPLY LIFE STABILITY SCORING
-employment_map = {'Salaried': 1.0, 'Pensioner': 0.9, 'Self-Employed': 0.5}
+employment_map = {'Salaried': 1.0, 'Pensioner': 0.5, 'Self-Employed': 0.7}
 
 base_score = (
     0.20 * df['age'].apply(age_score) +
