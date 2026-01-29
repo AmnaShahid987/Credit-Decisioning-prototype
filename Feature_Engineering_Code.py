@@ -69,9 +69,9 @@ employment_map = {'Salaried': 1.0, 'Pensioner': 0.9, 'Self-Employed': 0.5}
 
 base_score = (
     0.30 * df['age'].apply(age_score) +
-    0.30 * df['employment_status'].map(employment_map).fillna(0.5) +
+    0.40 * df['employment_status'].map(employment_map).fillna(0.5) +
     0.20 * df['household_dependents'].apply(dependent_score) +
-    0.10 * df['marital_status'].map({'Married': 1.0, 'Single': 0.8}).fillna(0.8) +
+    0.05 * df['marital_status'].map({'Married': 1.0, 'Single': 0.8}).fillna(0.8) +
     0.10 * df['city'].apply(city_score)
 )
 
