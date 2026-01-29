@@ -87,9 +87,9 @@ def predict(request: CustomerRequest):
             rejection_reason = "Your outstanding liabilities are greater than 5000000, your request cannot be processed."
         
         # Rule 4: Debt to Income * Spend to Income Ratio Check
-        elif input_data['debt_to_income_ratio'].iloc[0] > 3.0:
+        elif input_data['debt_to_income_ratio'].iloc[0] > 20.0:
             rejection_reason = f"Debt-to-Income ratio ({input_data['debt_to_income_ratio'].iloc[0]:.2f}) exceeds the limit of 3.0."
-        elif input_data['spend_to_income'].iloc[0] > 5.0:
+        elif input_data['spend_to_income'].iloc[0] > 20.0:
             rejection_reason = f"Spend-to-Income ratio ({input_data['spend_to_income'].iloc[0]:.2f}) exceeds the limit of 5.0."
 
         # If any rule was triggered, stop here and return the rejection
