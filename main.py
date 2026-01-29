@@ -139,11 +139,11 @@ def predict(request: CustomerRequest):
         # 3. APPLY LIFE STABILITY SCORING
         employment_map = {'Salaried': 1.0, 'Pensioner': 0.5, 'Self-Employed': 0.7}
         life_stability_score = (
-            0.20 * input_data['age'].apply(age_score) +
-            0.30 * input_data['employment_status'].map(employment_map).fillna(0.5) +
+            0.30 * input_data['age'].apply(age_score) +
+            0.40 * input_data['employment_status'].map(employment_map).fillna(0.5) +
             0.20 * input_data['household_dependents'].apply(dependent_score) +
-            0.10 * input_data['marital_status'].map({'Married': 1.0, 'Single': 0.8}).fillna(0.8) +
-            0.20 * input_data['city'].apply(city_score)
+            0.05 * input_data['marital_status'].map({'Married': 1.0, 'Single': 0.8}).fillna(0.8) +
+            0.10 * input_data['city'].apply(city_score)
         )
         
         # Apply instability penalty
