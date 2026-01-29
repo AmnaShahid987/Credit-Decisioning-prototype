@@ -128,7 +128,7 @@ df = pd.read_csv('feature_processed_data.csv')
 # We drop the target and any IDs. 
 # ALSO drop any 'prob_' columns if they were left over from previous runs
 cols_to_drop = ['customer_id','yearly_income','final_risk_label','probability_of_default','base_risk_score'] + [c for c in df.columns if c.startswith('prob_')]
-y = df['final_risk_label']
+y = df['base_risk_score']
 X = df.drop(columns=[col for col in cols_to_drop if col in df.columns])
 
 # 3. Preprocess Features
@@ -144,7 +144,7 @@ X_preprocessed = preprocessor.fit_transform(X)
 
 # 4. Encode Target
 label_encoder = LabelEncoder()
-y_encoded = label_encoder.fit_transform(y)
+base_risk_score_encoded = label_encoder.fit_transform(y)
 print(label_encoder.classes_)
 
 # 5. Train Model (Random Forest)
