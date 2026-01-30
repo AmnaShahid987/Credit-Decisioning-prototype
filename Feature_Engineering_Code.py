@@ -8,7 +8,7 @@ import os
 # 1. LOAD DATA
 try:
     # Ensure this filename matches your GitHub file exactly
-    df = pd.read_csv('Final_Dataset_modified (1).csv')
+    df = pd.read_csv('Final_Dataset_modified_augmented.csv')
     print("Data loaded successfully.")
 except FileNotFoundError:
     print("Error: CSV file not found. Check the filename in your repository.")
@@ -100,7 +100,7 @@ df['final_risk_label'] = df['base_risk_score'].apply(final_risk_label)
 
 # 7. Save the processesd data to a CSV file 
 
-output_filename = 'feature_processed_data.csv'
+output_filename = 'augmented_feature_processed_data.csv'
 
 try:
     # Check if file is open elsewhere
