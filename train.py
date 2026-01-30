@@ -13,7 +13,7 @@ import os
 # 1. LOAD DATA
 try:
     # Ensure this filename matches your GitHub file exactly
-    df = pd.read_csv('feature_processed_data.csv')
+    df = pd.read_csv('augmented_feature_processed_data.csv')
     print("Data loaded successfully.")
 except FileNotFoundError:
     print("Error: CSV file not found. Check the filename in your repository.")
