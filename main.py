@@ -85,66 +85,66 @@ def predict(request: CustomerRequest):
             elif age <= 55: return 0.6
             else: return 0.5
     
-       def dependent_score(n):
-        if n == 0: return 1.0
-        elif n <= 2: return 0.7
-        elif n <= 4: return 0.5
-        else: return 0.3
+        def dependent_score(n):
+            if n == 0: return 1.0
+            elif n <= 2: return 0.7
+            elif n <= 4: return 0.5
+            else: return 0.3
     
-    def city_score(city):
-        tier1 = ['Karachi', 'Lahore', 'Islamabad']
-        tier2 = ['Faisalabad', 'Multan', 'Peshawar']
-        if city in tier1: return 1.0
-        elif city in tier2: return 0.8
-        else: return 0.4
-    
-    def instability_penalty(row):
-        penalty = 0
-        if row['age'] < 30 and row['household_dependents'] >= 3:
-            penalty += 0.10
-        if row['employment_status'] in ['Self-Employed', 'Pensioner'] and row['household_dependents'] >= 4:
-            penalty += 0.10
-        if row['age'] > 55 and row['employment_status'] not in ['Salaried', 'Pensioner']:
-            penalty += 0.05
-        return penalty
-    
-    def squash(x, midpoint=0.75, steepness=6):
-        return 1 / (1 + np.exp(-steepness * (x - midpoint)))
-    
-    def apply_feature_engineering(input_data):
-        """Apply feature engineering to raw input data"""
-        df = pd.DataFrame([input_data])
+        def city_score(city):
+            tier1 = ['Karachi', 'Lahore', 'Islamabad']
+            tier2 = ['Faisalabad', 'Multan', 'Peshawar']
+            if city in tier1: return 1.0
+            elif city in tier2: return 0.8
+            else: return 0.4
         
-        # Calculate yearly income
-        input_data['yearly_income'] = input_data['monthly_income'] * 12
+        def instability_penalty(row):
+            penalty = 0
+            if row['age'] < 30 and row['household_dependents'] >= 3:
+                penalty += 0.10
+            if row['employment_status'] in ['Self-Employed', 'Pensioner'] and row['household_dependents'] >= 4:
+                penalty += 0.10
+            if row['age'] > 55 and row['employment_status'] not in ['Salaried', 'Pensioner']:
+                penalty += 0.05
+            return penalty
         
-        # Debt to Income Ratio
-        input_data['debt_to_income_ratio'] = input_data ['outstanding_liabilities'] / (input_data ['yearly_income'] + 1)
-        input_data['new_debt_to_income_ratio] = (input_data ['outstanding_liabilities'] + input_data ['loan_amount']) / (input_data ['yearly_income'] + 1)
+        def squash(x, midpoint=0.75, steepness=6):
+            return 1 / (1 + np.exp(-steepness * (x - midpoint)))
         
-        # Spend to Income Ratio
-        input_data['spend_to_income'] = input_data ['Total_Debits'] / (input_data ['Total_Credits'] + 1)
+        def apply_feature_engineering(input_data):
+            """Apply feature engineering to raw input data"""
+            df = pd.DataFrame([input_data])
+            
+            # Calculate yearly income
+            input_data['yearly_income'] = input_data['monthly_income'] * 12
+            
+            # Debt to Income Ratio
+            input_data['debt_to_income_ratio'] = input_data ['outstanding_liabilities'] / (input_data ['yearly_income'] + 1)
+            input_data['new_debt_to_income_ratio] = (input_data ['outstanding_liabilities'] + input_data ['loan_amount']) / (input_data ['yearly_income'] + 1)
+            
+            # Spend to Income Ratio
+            input_data['spend_to_income'] = input_data ['Total_Debits'] / (input_data ['Total_Credits'] + 1)
+            
+            # Life Stability Score
+            employment_map = {'Salaried': 1.0, 'Pensioner': 0.9, 'Self-Employed': 0.5}
+            
+            life_base_score = (
+                0.30 * df['age'].apply(age_score) +
+                0.40 * df['employment_status'].map(employment_map).fillna(0.5) +
+                0.20 * df['household_dependents'].apply(dependent_score) +
+                0.05 * df['marital_status'].map({'Married': 1.0, 'Single': 0.8}).fillna(0.8) +
+                0.10 * df['city'].apply(city_score)
+            )
+            
+            input_data['life_stability_score'] = (life_base_score - df.apply(instability_penalty, axis=1)).clip(0, 1)
+            
+            # Normalization
+            input_data['life_stability_score_adj'] = squash(input_data['life_stability_score'])
+            min_val, max_val = 0.0, 1.0
+            input_data['life_stability_score_adj'] = (input_data['life_stability_score_adj'] - min_val) / (max_val - min_val + 0.0001)
+            
+            return df
         
-        # Life Stability Score
-        employment_map = {'Salaried': 1.0, 'Pensioner': 0.9, 'Self-Employed': 0.5}
-        
-        life_base_score = (
-            0.30 * df['age'].apply(age_score) +
-            0.40 * df['employment_status'].map(employment_map).fillna(0.5) +
-            0.20 * df['household_dependents'].apply(dependent_score) +
-            0.05 * df['marital_status'].map({'Married': 1.0, 'Single': 0.8}).fillna(0.8) +
-            0.10 * df['city'].apply(city_score)
-        )
-        
-        input_data['life_stability_score'] = (life_base_score - df.apply(instability_penalty, axis=1)).clip(0, 1)
-        
-        # Normalization
-        input_data['life_stability_score_adj'] = squash(input_data['life_stability_score'])
-        min_val, max_val = 0.0, 1.0
-        input_data['life_stability_score_adj'] = (input_data['life_stability_score_adj'] - min_val) / (max_val - min_val + 0.0001)
-        
-        return df
-    
 
         
         # --- THE GATEKEEPER: HARD ELIGIBILITY RULES ---
