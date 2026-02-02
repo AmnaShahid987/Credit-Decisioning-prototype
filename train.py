@@ -1,137 +1,88 @@
 import pandas as pd
+import numpy as np
 import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestRegressor
 
-#Feature Engineering Code#
-import pandas as pd
-import numpy as np
-import joblib
-import os
 
-# 1. LOAD DATA
-try:
-    # Ensure this filename matches your GitHub file exactly
-    df = pd.read_csv('augmented_feature_processed_data.csv')
-    print("Data loaded successfully.")
-except FileNotFoundError:
-    print("Error: CSV file not found. Check the filename in your repository.")
-    exit()
+## Task
+#Load the `training_feature_processed_data.csv` dataset, prepare features and targets (regression target: `base_risk_score`, classification target: `final_risk_label`, 
+#excluding `customer_id`, `yearly_income`, `life_stability_score`, `base_risk_score`, `final_risk_label` from features), apply one-hot encoding to categorical features, 
+#train a regression model for `base_risk_score` and a classification model for `final_risk_label`, generate predictions including `probability_of_default` on the training data, 
+#and finally, confirm successful training of both models by displaying a sample of the generated `base_risk_score`, `final_risk_label`, and `probability_of_default` values.
 
-# 2. RATIO CALCULATIONS
-# Standardizing Income: Use Monthly Income if available, otherwise 1/6th of Half-Yearly
-# We use .fillna(0) to avoid math errors with empty cells
 
-df['yearly_income'] = df ['monthly_income']*12
-
-# Debt to Income Ratio (DTI)
-# Calculation: Total Liabilities / Monthly Income
-# Adding 1 to denominator to prevent DivisionByZero errors
-df['debt_to_income_ratio'] = df['outstanding_liabilities'] / df['yearly_income'] + 1
-
-# Spend to Income Ratio
-# Calculation: Total Debit over 6 months / Total Income over 6 months
-df['spend_to_income'] = df['Total_Debits'] / (df['Total_Credits']) + 1 
-
-# 3. SCORING FUNCTIONS
-def age_score(age):
-    if age < 22: return 0.4
-    elif age <= 25: return 0.6
-    elif age <= 30 : return 0.7
-    elif age <= 55: return 1.0 
-    elif age > 55: return 0.6
-    else: return 0
-
-def dependent_score(n):
-    if n == 0: return 1.0
-    elif n <= 2: return 0.7
-    elif n <= 4: return 0.5
-    else: return 0.3
-
-def city_score(city):
-    tier1 = ['Karachi', 'Lahore', 'Islamabad']
-    tier2 = ['Faisalabad', 'Multan', 'Peshawar']
-    if city in tier1: return 1.0
-    elif city in tier2: return 0.8
-    else: return 0.2
-
-def instability_penalty(row):
-    penalty = 0
-    if row['age'] < 30 and row['household_dependents'] >= 3:
-        penalty += 0.1
-    if row['employment_status'] in ['Self-Employed', 'Pensioner'] and row['household_dependents'] >= 4:
-        penalty += 0.1
-    if row['age'] > 55 and row['employment_status'] not in ['Salaried', 'Pensioner']:
-        penalty += 0.05
-    return penalty
-
-def squash(x, midpoint=0.75, steepness=6):
-    return 1 / (1 + np.exp(-steepness * (x - midpoint)))
-
-# 4. APPLY LIFE STABILITY SCORING
-employment_map = {'Salaried': 10, 'Pensioner': 5, 'Self-Employed': 7}
-
-base_score = (
-    0.30 * df['age'].apply(age_score) +
-    0.40 * df['employment_status'].map(employment_map).fillna(0.5) +
-    0.20 * df['household_dependents'].apply(dependent_score) +
-    0.05 * df['marital_status'].map({'Married': 10, 'Single': 8}).fillna(0.8) +
-    0.10 * df['city'].apply(city_score)
-)
-
-df['life_stability_score'] = (base_score - df.apply(instability_penalty, axis=1)).clip(0, 1)
-
-# Normalization
-df['life_stability_score_adj'] = squash(df['life_stability_score'])
-min_val, max_val = df['life_stability_score_adj'].min(), df['life_stability_score_adj'].max()
-df['life_stability_score_adj'] = (df['life_stability_score_adj'] - min_val) / (max_val - min_val)
-
-# 5. FINAL RISK MODELING (THE TEACHER)
-# This creates the target label for the ML model to learn
-df['base_risk_score'] = (
-    0.40 * df['debt_to_income_ratio'].clip(0, 5) + 
-    0.35 * df['spend_to_income'].clip(0, 2) + 
-    0.25 * (1- df['life_stability_score_adj']) # Lower stability = higher risk
-)
-
-def final_risk_label(score):
-    if score >= 2.4: return 'Very High'
-    elif score >= 1.5: return 'High'
-    elif score >= 1.0: return 'Medium'
-    else: return 'Low'
-
-df['final_risk_label'] = df['base_risk_score'].apply(final_risk_label)
-
-# 7. Save the processesd data to a CSV file 
-
-output_filename = 'feature_processed_data.csv'
-
-try:
-    # Check if file is open elsewhere
-    if os.path.exists(output_filename):
-        os.remove(output_filename) # Try to delete it first to test permissions
-    
-    df.to_csv(output_filename, index=False)
-    print(f"✅ Success! File saved as {output_filename}")
-
-except PermissionError:
-    print(f"❌ Error: Please close '{output_filename}' in Excel or other programs and try again.")
-except Exception as e:
-    print(f"❌ An unexpected error occurred: {e}")
-
-# ML MODEL TRAINING CODE#
 # 1. Load the data created by Feature_Engineering.py
-df = pd.read_csv('feature_processed_data.csv')
 
-# 2. Identify Target and Features
-# We drop the target and any IDs. 
-# ALSO drop any 'prob_' columns if they were left over from previous runs
-cols_to_drop = ['customer_id','yearly_income','final_risk_label','probability_of_default','base_risk_score'] + [c for c in df.columns if c.startswith('prob_')]
-y = df['base_risk_score']
-X = df.drop(columns=[col for col in cols_to_drop if col in df.columns])
+df = pd.read_csv('training_feature_processed_data.csv')
+print('Dataset loaded successfully. First 5 rows:')
+print(df.head())
 
-# 3. Preprocess Features
+## Prepare Features and Target variables
+
+### Subtask:
+#Identify and separate the features (X) and target variables (y) from the loaded training data. `y_regression` will be `base_risk_score`, and `y_classification` will be `final_risk_label`. 
+#The specified columns (`customer_id`, `yearly_income`, `life_stability_score`, `base_risk_score`, `final_risk_label`) will be explicitly excluded from the feature set (X). 
+#Convert `final_risk_label` to numerical ordinal values for classification.
+
+# 1. Define the list of columns to be excluded from the feature set (X)
+excluded_columns = [
+    'customer_id',
+    'yearly_income',
+    'life_stability_score',
+    'base_risk_score',
+    'final_risk_label'
+]
+
+# 2. Create the feature DataFrame X by dropping these excluded columns from df
+X = df.drop(columns=excluded_columns)
+
+# 3. Create the regression target Series y_regression from the base_risk_score column of df
+y_base_risk_score = df['base_risk_score']
+
+# 4. Create the classification target Series y_classification from the final_risk_label column of df
+y_final_risk_label = df['final_risk_label']
+
+# 5. Map the categorical values in y_classification ('Low', 'Medium', 'High', 'Very High')
+# to numerical ordinal values (e.g., 0, 1, 2, 3 respectively) and store them back in y_classification.
+risk_label_mapping = {
+    'Low': 0,
+    'Medium': 1,
+    'High': 2,
+    'Very High': 3
+}
+y_final_risk_label = y_final_risk_label.map(risk_label_mapping)
+
+# Display the unique values of y_classification and their counts to verify the conversion.
+print('Features (X) shape:', X.shape)
+print('Regression Target (y_regression) shape:', y_regression.shape)
+print('Classification Target (y_classification) shape:', y_classification.shape)
+print('\nUnique values and counts for y_classification (numerical):')
+print(y_classification.value_counts())
+print('\nFirst 5 rows of X:')
+print(X.head())
+print('\nFirst 5 values of y_regression:')
+print(y_regression.head())
+print('\nFirst 5 values of y_classification:')
+print(y_classification.head())
+
+#The next step is to apply one-hot encoding to the categorical features within the feature DataFrame X. 
+#I will identify the categorical columns and use pd.get_dummies to transform them, dropping the first category to avoid multicollinearity.
+
+# Identify categorical columns in X
+categorical_cols = X.select_dtypes(include='object').columns
+
+# Apply one-hot encoding to categorical columns
+X_encoded = pd.get_dummies(X, columns=categorical_cols, drop_first=True)
+
+print('Shape of X after one-hot encoding:', X_encoded.shape)
+print('\nFirst 5 rows of X_encoded:')
+print(X_encoded.head())
+
+
+################## 3. Preprocess Features
 categorical_cols = X.select_dtypes(include=['object', 'category']).columns
 preprocessor = ColumnTransformer(
     transformers=[
@@ -142,15 +93,73 @@ preprocessor = ColumnTransformer(
 
 X_preprocessed = preprocessor.fit_transform(X)
 
-# 4. Encode Target
+############### 4. Encode Target
 label_encoder = LabelEncoder()
 base_risk_score_encoded = label_encoder.fit_transform(y)
 print(label_encoder.classes_)
 
-# 5. Train Model (Random Forest)
-model = RandomForestClassifier(random_state=42)
-model.fit(X_preprocessed, y_encoded)
-print("Model training complete.")
+
+# Initialize and train the regression model for base risk score
+base_risk_score_model = RandomForestRegressor(random_state=42)
+base_risk_score_model.fit(X_encoded, y_base_risk_score)
+
+print('Regression model for base risk score is trained successfully.')
+
+
+# Initialize and train the risk classification model
+final_risk_label_model = RandomForestClassifier(random_state=42)
+final_risk_label_model.fit(X_encoded, y_classification)
+
+print('Classification model for final risk labels trained successfully.')
+
+#Now that both the regression and classification models are trained, I will generate predictions for `base_risk_score` and `final_risk_label` 
+#using the trained models on the `X_encoded` training data. Additionally, I will generate `probability_of_default` from the classification model.
+
+# Generate regression predictions for base_risk_score
+predicted_base_risk_score = regression_base_risk_score.predict(X_encoded)
+
+# Generate classification predictions for final_risk_label
+predicted_final_risk_label = final_risk_label_model.predict(X_encoded)
+
+# Generate probability of default (probability of 'High' or 'Very High' risk classes)
+# Map numerical labels back to original for understanding
+# 'Low': 0, 'Medium': 1, 'High': 2, 'Very High': 3
+# Probability of default could be sum of probabilities for 'High' (2) and 'Very High' (3)
+
+class_probabilities = final_risk_label_model.predict_proba(X_encoded)
+
+# Assuming risk_label_mapping is available from previous steps
+# If not, define it again:
+risk_label_mapping_inverse = {
+    0: 'Low',
+    1: 'Medium',
+    2: 'High',
+    3: 'Very High'
+}
+
+# Identify column indices for 'High' and 'Very High'
+# The order of classes in predict_proba is classification_model.classes_
+# Let's verify and map
+
+class_labels = final_risk_label_model.classes_
+prob_of_high_risk = np.zeros(len(X_encoded))
+prob_of_very_high_risk = np.zeros(len(X_encoded))
+
+if 2 in class_labels:
+    high_risk_idx = np.where(class_labels == 2)[0][0]
+    prob_of_high_risk = class_probabilities[:, high_risk_idx]
+
+if 3 in class_labels:
+    very_high_risk_idx = np.where(class_labels == 3)[0][0]
+    prob_of_very_high_risk = class_probabilities[:, very_high_risk_idx]
+
+probability_of_default = prob_of_high_risk + prob_of_very_high_risk
+
+print('Predictions generated successfully.')
+print('\nSample of predicted base_risk_score:', predicted_base_risk_score[:5])
+print('Sample of predicted final_risk_label (numerical):', predicted_final_risk_label[:5])
+print('Sample of predicted probability_of_default:', probability_of_default[:5])
+
 
 # 6. SAVE EVERYTHING FOR RENDER
 joblib.dump(model, "credit_risk_model.pkl")
