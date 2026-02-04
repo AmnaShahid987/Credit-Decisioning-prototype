@@ -164,11 +164,10 @@ def predict(request: CustomerRequest):
         
         # Rule 4: Debt to Income Ratio Check
         elif input_data['debt_to_income_ratio'].iloc[0] > 10.0:
-            rejection_reason = f" Your outstanding debt is ({processed_df['debt_to_income_ratio'].iloc[0]:.2f}) times your income. Please clear your outstanding debt before applying again."
+            rejection_reason = f" Your outstanding debt is ({processed_df['debt_to_income_ratio'].iloc[0]:.2f}) times your income.Please clear your outstanding debt before applying again."
             
         elif input_data['new_debt_to_income_ratio'].iloc[0] > 10.0: 
-            rejection_reason = f" Your loan cannot be approved because your outstanding debt will be ({processed_df['debt_to_income_ratio'].iloc[0]:.2f}) times your income. Please clear your previous 
-            outstanding debt before applying again."
+            rejection_reason = f" Your loan cannot be approved because your outstanding debt will be ({processed_df['debt_to_income_ratio'].iloc[0]:.2f}) times your income.Please clear your previous outstanding debt before applying again."
 
         
         # Rule 5: Spend to Income Ratio Check
