@@ -120,7 +120,7 @@ def predict(request: CustomerRequest):
             
             # Debt to Income Ratio
             input_data['debt_to_income_ratio'] = input_data ['outstanding_liabilities'] / (input_data ['yearly_income'] + 1)
-            input_data['new_debt_to_income_ratio] = ((input_data ['outstanding_liabilities'] + input_data ['loan_amount']) / (input_data ['yearly_income'] + 1))
+            input_data['new_debt_to_income_ratio'] = ((input_data ['outstanding_liabilities'] + input_data ['loan_amount']) / (input_data ['yearly_income'] + 1))
             
             # Spend to Income Ratio
             input_data['spend_to_income'] = input_data ['Total_Debits'] / (input_data ['Total_Credits'] + 1)
