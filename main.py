@@ -220,12 +220,12 @@ def predict(request: CustomerRequest):
             
             if risk_label == 'Very High':
                 return 'Decline'
-            if risk_label == 'High' and input_data['debt_to_income'] >= 2.0':
+            if risk_label == 'High' and input_data['debt_to_income'] >= 2.0 :
                 return 'Decline'
             if risk_label == 'High' and input_data ['new_debt_to_income'] >= 1.0 :
                 return 'Review'
             if risk_label == 'High' and input_data ['new_debt_to_income'] <=0.5 :
-                return 'Approve'
+                return 'Approve' 
             if risk_label == 'Medium' and input_data ['new_debt_to_income'] >=1.5:
                 return 'Decline'
             if risk_label == 'Medium' and input_data ['new_debt_to_income'] >=0.75:
