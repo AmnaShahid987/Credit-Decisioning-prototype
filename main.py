@@ -130,7 +130,7 @@ def predict(request: CustomerRequest):
             
             # Spend to Income Ratio
             input_data ['Total_Debits'] = input_data ['Total_Debits'].astype('float32')
-            input_data ['Total_Credits'] = input_data ['Total_Credits'].astype('float32')+
+            input_data ['Total_Credits'] = input_data ['Total_Credits'].astype('float32')
             input_data['spend_to_income'] = input_data ['Total_Debits'] / (input_data ['Total_Credits'] + 1)
             
             # Life Stability Score
