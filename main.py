@@ -19,17 +19,17 @@ app.add_middleware(
 
 # 2. Define the expected Input Schema (Matching Lovable keys)
 class CustomerRequest(BaseModel):
-    age: int16
+    age: int
     employment_status: str
-    household_dependents: int16
+    household_dependents: int
     marital_status: str
     city: str
-    monthly_income: float32
+    monthly_income: float
     credit_history_type: str
-    Total_Debits: float32
-    Total_Credits: float32
-    outstanding_liabilities: float32
-    loan_amount: float32
+    Total_Debits: float
+    Total_Credits: float
+    outstanding_liabilities: float
+    loan_amount: float
     loan_purpose: str
 
 # 3. Load trained models and preprocessor
@@ -77,6 +77,7 @@ def predict(request: CustomerRequest):
         input_data = request.dict()
         
         # 4. Helper Functions (from feature_engineering.py)
+        df['age'] = df['age'].astype('int16')
         def age_score(age):
             if age < 22: return 0.1
             elif age <= 25: return 0.4
@@ -84,7 +85,8 @@ def predict(request: CustomerRequest):
             elif age <= 35: return 1.0
             elif age <= 55: return 0.6
             else: return 0.5
-    
+                
+        df['household_dependents'] = df['household_dependents'].astype('int16')
         def dependent_score(n):
             if n == 0: return 1.0
             elif n <= 2: return 0.7
@@ -116,13 +118,19 @@ def predict(request: CustomerRequest):
             df = pd.DataFrame([input_data])
             
             # Calculate yearly income
+             input_data['yearly_income'] = input_data['monthly_income'].astype('float32')
             input_data['yearly_income'] = input_data['monthly_income'] * 12
             
             # Debt to Income Ratio
+            input_data ['outstanding_liabilities'] = input_data ['outstanding_liabilities'].astype('float32')
+            input_data ['loan_amount'] =  input_data ['loan_amount'].astype('float32')
+            input_data['debt_to_income_ratio'] = input_data['debt_to_income_ratio'].astype('float32')
             input_data['debt_to_income_ratio'] = input_data ['outstanding_liabilities'] / (input_data ['yearly_income'] + 1)
             input_data['new_debt_to_income_ratio'] = ((input_data ['outstanding_liabilities'] + input_data ['loan_amount']) / (input_data ['yearly_income'] + 1))
             
             # Spend to Income Ratio
+            input_data ['Total_Debits'] = input_data ['Total_Debits'].astype('float32')
+            input_data ['Total_Credits'] = input_data ['Total_Credits'].astype('float32')+
             input_data['spend_to_income'] = input_data ['Total_Debits'] / (input_data ['Total_Credits'] + 1)
             
             # Life Stability Score
