@@ -118,7 +118,7 @@ def predict(request: CustomerRequest):
             df = pd.DataFrame([input_data])
             
             # Calculate yearly income
-             input_data['yearly_income'] = input_data['monthly_income'].astype('float32')
+            input_data['yearly_income'] = input_data['monthly_income'].astype('float32')
             input_data['yearly_income'] = input_data['monthly_income'] * 12
             
             # Debt to Income Ratio
