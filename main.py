@@ -19,17 +19,17 @@ app.add_middleware(
 
 # 2. Define the expected Input Schema (Matching Lovable keys)
 class CustomerRequest(BaseModel):
-    age: int
+    age: int16
     employment_status: str
-    household_dependents: int
+    household_dependents: int16
     marital_status: str
     city: str
-    monthly_income: float
+    monthly_income: float32
     credit_history_type: str
-    Total_Debits: float
-    Total_Credits: float
-    outstanding_liabilities: float
-    loan_amount: float
+    Total_Debits: float32
+    Total_Credits: float32
+    outstanding_liabilities: float32
+    loan_amount: float32
     loan_purpose: str
 
 # 3. Load trained models and preprocessor
