@@ -3,22 +3,9 @@ import numpy as np
 import os
 
 
-# Define your file path
-DATA_PATH = "training_feature_processed_data.csv"
-
-def prepare_environment(file_path):
-    if os.path.exists(file_path):
-        print(f"Found existing data at {file_path}. Deleting to prevent skew...")
-        os.remove(file_path)
-    else:
-        print("No existing data found. Starting fresh.")
-
-# Execute the cleanup
-prepare_environment(DATA_PATH)
-
 # 1. LOAD DATA
 try:
-    df = pd.read_csv('raw_training_data.csv', index_col=False)
+    df = pd.read_csv('training_set.csv', index_col=False)
     print("✓ Data loaded successfully. Shape:", df.shape)
 except FileNotFoundError:
     print("Error: CSV file not found. Check the filename in your repository.")
